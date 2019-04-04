@@ -6,18 +6,18 @@ from baden.model import team
 from exceptions import BadenException
 from .conftest import TEST_DATA_DIR
 
-GOOD_TEST_TEAM_FILE = os.path.abspath(os.path.join(TEST_DATA_DIR, "teams_good.csv"))
-WRONG_TEST_TEAM_FILE = os.path.abspath(os.path.join(TEST_DATA_DIR, "teams_wrong.csv"))
+GOOD_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_good.csv")
+WRONG_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_wrong.csv")
 
 
 def test_load_good_team_file(test_db):
-    team.load_team_file(GOOD_TEST_TEAM_FILE)
+    team.load_file(GOOD_TEST_TEAM_FILE)
     assert team.Team.objects.count() == 126, "There must be 126 teams"
 
 
 def test_load_wrong_team_file(test_db):
     with pytest.raises(BadenException):
-        team.load_team_file(WRONG_TEST_TEAM_FILE)
+        team.load_file(WRONG_TEST_TEAM_FILE)
 
 
 def test_distribution(test_db):

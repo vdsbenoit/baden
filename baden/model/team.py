@@ -35,7 +35,7 @@ def add_even(code):
     team.save()
 
 
-def load_team_file(file_name):
+def load_file(file_name):
     modified_teams = list()
     alphabet = []
     for letter in range(65, 91):
