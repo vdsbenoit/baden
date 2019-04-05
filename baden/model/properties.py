@@ -1,10 +1,10 @@
 import configparser
-import os
+from os.path import abspath, dirname, join
 
 from exceptions import ConfigurationException, BadenException
 
-APP_ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-SETTINGS_FILE = os.path.join(APP_ROOT_DIR, "settings.ini")
+PROJECT_ROOT = abspath(dirname(dirname(__file__)))
+SETTINGS_FILE = join(PROJECT_ROOT, "settings.ini")
 LIST_SEPARATOR = ""
 GAMES_TABLE_FILE = ""
 DB_NAME = ""

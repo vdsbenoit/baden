@@ -1,4 +1,4 @@
-import os
+from os.path import abspath, dirname, join
 
 import pytest
 from mongoengine import *
@@ -7,7 +7,7 @@ import main
 from baden.model import game, team
 from model import properties
 
-TEST_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
+TEST_DATA_DIR = abspath(join(dirname(__file__), "data"))
 
 
 @pytest.fixture(scope="session")

@@ -10,26 +10,33 @@ log = logging.getLogger('default')
 
 
 class Team(Document):
-    id = IntField(primary_key=True)  # ne pas compléter automatiquement pour les réécritures
-    number = IntField()  # pour la répartition dans les jeux
+    id = IntField(primary_key=True)  # do not fill automatically in order to re-write teams
+    number = IntField()  # to randomly distribute the teams across the game
     code = StringField(unique=True, required=True, max_length=10)  # A1, A2, B1, ...
     unit = StringField(max_length=100, required=True)
     sex = StringField(max_length=1, required=True)  # M F
-    games = ListField(ReferenceField('Game'))
     score = IntField(default=0)
     victories = IntField(default=0)
     evens = IntField(default=0)
 
 
 def add_victory(code):
-    team = Team.objects(code=code).first()
+    """
+    Add a victory to a team
+    :param code: team code
+    """
+    team = Team.objects(code=code).get()
     team.victories += 1
     team.score += 2
     team.save()
 
 
 def add_even(code):
-    team = Team.objects(code=code).first()
+    """
+    Add an even to a team
+    :param code: team code
+    """
+    team = Team.objects(code=code).get()
     team.evens += 1
     team.score += 1
     team.save()
@@ -69,7 +76,6 @@ def _shuffle(teams, floor_number):
     Distribute random numbers to a list of Team objects, starting at number floor_number
     :param teams: list of Team objects
     :param floor_number: starting point for the number counter
-    :return: None
     """
     modified_teams = []
     ceil_number = len(teams) + floor_number - 1
@@ -89,7 +95,6 @@ def distribute_numbers(ignore_sex=True):
     """
     Distribute numbers to the teams.
     :param ignore_sex: mix sex across the distribution, else distribute the first numbers to the girls and then to the guys
-    :return:
     """
     modified_teams = []
     if ignore_sex:
@@ -107,6 +112,9 @@ def distribute_numbers(ignore_sex=True):
 
 
 def reset_scores():
+    """
+    Reset the scores of all the teams
+    """
     for team in Team.objects():
         team.score = 0
         team.victories = 0
@@ -115,4 +123,7 @@ def reset_scores():
 
 
 def drop_teams():
+    """
+    Clean teams collection
+    """
     Team.objects().delete()
