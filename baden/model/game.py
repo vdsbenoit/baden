@@ -40,6 +40,33 @@ def load_file(file_name):
         game.save()
 
 
+def validate_game_collection():
+    duel_set_list = list()
+    for time in range(1, 22):
+        player_list = list()
+        for g in Game.objects(time=time):
+            players = g.players
+            players_set = {players[0], players[1]}
+            assert players[0] not in player_list, "Team {} plays two games at time {}".format(players[0], time)
+            assert players[1] not in player_list, "Team {} plays two games at time {}".format(players[1], time)
+            assert players[0] != players[1], \
+                "Player {} plays against itself in game {} at time {}".format(players[0], g.number, time)
+            assert players_set not in duel_set_list, \
+                "Team {} already played against team {}".format(players[0], players[1])
+            player_list.append(players[0])
+            player_list.append(players[1])
+            duel_set_list.append(players_set)
+
+    for game_number in range(1, 22):
+        player_list = list()
+        for g in Game.objects(number=game_number):
+            players = g.players
+            assert players[0] not in player_list, "Team {} plays twice the game {}".format(players[0], game_number)
+            assert players[1] not in player_list, "Team {} plays twice the game {}".format(players[1], game_number)
+            player_list.append(players[0])
+            player_list.append(players[1])
+
+
 def drop_games():
     """
     Drop games collection
