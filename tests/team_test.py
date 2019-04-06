@@ -3,6 +3,7 @@ import os
 import pytest
 
 from baden.model import team
+from baden.model import util
 from exceptions import BadenException
 from .conftest import TEST_DATA_DIR
 
@@ -21,14 +22,14 @@ def test_load_wrong_team_file(test_db):
 
 
 def test_distribution(test_db):
-    team.distribute_numbers(False)
+    util.distribute_numbers(False)
     for t in team.Team.objects(sex="F"):
         assert t.number > 0, "A female team received a number lower than 1 : {}".format(t.number)
         assert t.number < 43, "A female team received a number higher than 42 : {}".format(t.number)
     for t in team.Team.objects(sex="M"):
         assert t.number > 42, "A male team received a number lower than 1 : {}".format(t.number)
         assert t.number < 127, "A male team received a number higher than 42 : {}".format(t.number)
-    team.distribute_numbers(True)
+    util.distribute_numbers(True)
 
 
 def test_add_score(test_db):

@@ -8,6 +8,7 @@ import logging
 
 import model.util
 import model.team
+import model.game
 from model import properties
 from model.properties import SETTINGS_FILE
 
@@ -37,7 +38,6 @@ def main():
     logger_setup()
     properties.parse_settings()
     model.util.setup_db()
-
     print("end")
 
 

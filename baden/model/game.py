@@ -8,7 +8,7 @@ log = logging.getLogger('default')
 
 
 class Game(Document):
-    circuit = IntField(required=True)
+    circuit = StringField(required=True, max_length=2)
     number = IntField(required=True)
     name = StringField(max_length=100)
     players = ListField(IntField(), required=True)
@@ -17,13 +17,13 @@ class Game(Document):
 
 def load_file(file_name):
     modified_games = list()
-    circuit = 0
+    circuit = ""
     with open(file_name, mode="r", encoding='utf-8-sig') as file:
         for line in file:
             line = line[:-1]
             cells = line.split(properties.LIST_SEPARATOR)
             if not circuit:
-                circuit = int(cells[0])
+                circuit = cells[0]
                 continue
             if cells[0].lower() == "jeu":
                 continue
