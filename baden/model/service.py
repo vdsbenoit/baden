@@ -82,3 +82,37 @@ def distribute_numbers(ignore_sex=True):
                                      .format(t1.id, t2.id, t1.number))
     for team in modified_teams:
         team.save()
+
+
+def get_ranking_by_section(gender=None):
+    """
+    Get the ranking by section. Scores is based on the average of all the teams of each section
+    :param gender: (optional) filter the ranking on a gender
+    :return: list of tuples (section, mean score)
+    """
+    teams = Team.objects(sex=gender) if gender else Team.objects()
+    section_scores = dict()
+    for team in teams:
+        if team.section in section_scores:
+            section_scores[team.section].append(team.score)
+        else:
+            section_scores[team.section] = [team.score]
+    section_mean_scores = dict()
+    for section, scores in section_scores.items():
+        section_mean_scores[section] = sum(scores) / len(scores)
+    return sorted(section_mean_scores.items(), key=lambda kv: kv[1])
+
+
+def get_ranking(gender=None):
+    """
+    Get the ranking by team.
+    :param gender: (optional) filter the ranking on a gender
+    :return: list of tuples (section, team code, score)
+    """
+    teams = Team.objects(sex=gender).order_by('score') if gender else Team.objects().order_by('score')
+    ranking = list()
+    for team in teams:
+        ranking.append((team.setion, team.code, team.score))
+    return ranking
+
+
