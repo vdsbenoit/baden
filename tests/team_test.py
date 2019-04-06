@@ -3,36 +3,24 @@ import os
 import pytest
 
 from baden.model import team
-from baden.model import util
+from baden.model import service
 from exceptions import BadenException
-from .conftest import TEST_DATA_DIR
+from .conftest import TEST_DATA_DIR, GOOD_TEST_TEAM_FILE
 
-GOOD_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_right.csv")
 WRONG_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_wrong.csv")
 
 
-def test_load_good_team_file(test_db):
+def test_load_good_team_file(empty_db):
     team.load_file(GOOD_TEST_TEAM_FILE)
     assert team.Team.objects.count() == 126, "There must be 126 teams"
 
 
-def test_load_wrong_team_file(test_db):
+def test_load_wrong_team_file(empty_db):
     with pytest.raises(BadenException):
         team.load_file(WRONG_TEST_TEAM_FILE)
 
 
-def test_distribution(test_db):
-    util.distribute_numbers(False)
-    for t in team.Team.objects(sex="F"):
-        assert t.number > 0, "A female team received a number lower than 1 : {}".format(t.number)
-        assert t.number < 43, "A female team received a number higher than 42 : {}".format(t.number)
-    for t in team.Team.objects(sex="M"):
-        assert t.number > 42, "A male team received a number lower than 1 : {}".format(t.number)
-        assert t.number < 127, "A male team received a number higher than 42 : {}".format(t.number)
-    util.distribute_numbers(True)
-
-
-def test_add_score(test_db):
+def test_add_score(clean_db):
     team.add_victory("A1")
     team.add_even("A1")
     team.add_victory("A2")
@@ -44,7 +32,7 @@ def test_add_score(test_db):
     assert team.Team.objects(code="A3").first().score == 2, "Team 3 should have 2 points"
 
 
-def test_reset_scores(test_db):
+def test_reset_scores(clean_db):
     team.add_victory("A1")
     team.add_even("A2")
     team.reset_scores()
@@ -54,7 +42,7 @@ def test_reset_scores(test_db):
         assert t.evens == 0, "Team {} still has {} evens".format(t.id, t.s)
 
 
-def test_drop_teams(test_db):
+def test_drop_teams(clean_db):
     team.drop_teams()
     team_amount = len(team.Team.objects())
     assert team_amount == 0, "There are still {} teams in the db after clean up".format(team_amount)

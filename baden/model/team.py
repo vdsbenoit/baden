@@ -12,7 +12,7 @@ class Team(Document):
     id = IntField(primary_key=True)  # do not fill automatically in order to re-write teams
     number = IntField()  # to randomly distribute the teams across the game
     code = StringField(unique=True, required=True, max_length=10)  # A1, A2, B1, ...
-    unit = StringField(max_length=100, required=True)
+    section = StringField(max_length=100, required=True)
     sex = StringField(max_length=1, required=True)  # M F
     score = IntField(default=0)
     victories = IntField(default=0)
@@ -56,7 +56,7 @@ def load_file(file_name):
             for i in range(team_amount):
                 team = Team()
                 team.id = nb_iterator
-                team.unit = cells[2]
+                team.section = cells[2]
                 team.sex = cells[0]
                 if cells[0] not in "MF":
                     raise BadenException("Gender field must be M or F")

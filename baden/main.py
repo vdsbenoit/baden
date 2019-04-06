@@ -6,7 +6,7 @@ Baden Battle scores tool.
 import configparser
 import logging
 
-import model.util
+import model.service
 import model.team
 import model.game
 from model import properties
@@ -37,7 +37,7 @@ def logger_setup():
 def main():
     logger_setup()
     properties.parse_settings()
-    model.util.setup_db()
+    model.service.setup_db()
     print("end")
 
 
