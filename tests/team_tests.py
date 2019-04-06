@@ -6,7 +6,7 @@ from baden.model import team
 from exceptions import BadenException
 from .conftest import TEST_DATA_DIR
 
-GOOD_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_good.csv")
+GOOD_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_right.csv")
 WRONG_TEST_TEAM_FILE = os.path.join(TEST_DATA_DIR, "teams_wrong.csv")
 
 

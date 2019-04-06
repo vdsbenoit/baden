@@ -1,5 +1,4 @@
 import logging
-from random import randint
 
 from mongoengine import *
 
@@ -67,46 +66,6 @@ def load_file(file_name):
             letter_iterator += 1
             if letter_iterator > 25:
                 raise BadenException("The software does not handle more than 26 sections for now.")
-    for team in modified_teams:
-        team.save()
-
-
-def _shuffle(teams, floor_number):
-    """
-    Distribute random numbers to a list of Team objects, starting at number floor_number
-    :param teams: list of Team objects
-    :param floor_number: starting point for the number counter
-    """
-    modified_teams = []
-    ceil_number = len(teams) + floor_number - 1
-    available_numbers = [i for i in range(floor_number, ceil_number + 1)]
-    for team in teams:
-        index = randint(0, len(available_numbers) - 1)
-        team.number = available_numbers[index]
-        available_numbers.pop(index)
-        modified_teams.append(team)
-    if len(available_numbers) > 0:
-        raise BadenException("some numbers were not distributed during shuffle: {}".format(available_numbers))
-    log.info("{} teams shuffled from number {} to {}".format(len(teams), floor_number, ceil_number))
-    return modified_teams
-
-
-def distribute_numbers(ignore_sex=True):
-    """
-    Distribute numbers to the teams.
-    :param ignore_sex: mix sex across the distribution, else distribute the first numbers to the girls and then to the guys
-    """
-    modified_teams = []
-    if ignore_sex:
-        modified_teams += _shuffle(Team.objects(), 1)
-    else:
-        modified_teams += _shuffle(Team.objects(sex="F"), 1)
-        modified_teams += _shuffle(Team.objects(sex="M"), Team.objects(sex="F").count() + 1)
-    for t1 in modified_teams:
-        for t2 in modified_teams:
-            if t1.number == t2.number and t1.id != t2.id:
-                raise BadenException("There are two teams ({} & {}) with the same number ({}). Distribution not saved"
-                                     .format(t1.id, t2.id, t1.number))
     for team in modified_teams:
         team.save()
 

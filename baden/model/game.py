@@ -25,7 +25,7 @@ def load_file(file_name):
             if not circuit:
                 circuit = int(cells[0])
                 continue
-            if cells[0].lower() == "id":
+            if cells[0].lower() == "jeu":
                 continue
             for i in range(2, len(cells), 2):
                 game = Game()
