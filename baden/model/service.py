@@ -44,7 +44,7 @@ def get_players(game_number):
     return player_list
 
 
-def distribute_numbers(ignore_sex=True):
+def distribute_numbers(ignore_sex=False):
     """
     Distribute numbers to the teams.
     :param ignore_sex: mix sex across the distribution, else distribute the first numbers to the girls and then to the guys
