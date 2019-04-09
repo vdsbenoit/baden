@@ -1,0 +1,122 @@
+/* color codes
+2B7254
+A6C599
+D0E095
+E2EBBE
+efefef
+FFFFFF
+*/
+
+
+/* globals*/
+@viewport {
+ width: device-width;
+ zoom: 1;
+ user-zoom: fixed;
+ }
+
+ * {
+    box-sizing: border-box;
+}
+body {
+    font-family: Calibri, Arial, sans-serif;
+    background-color: #D0E095;
+    color: #2B7054;
+    width: 70%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px;
+    overflow: hidden;
+    min-width: 350px;
+}
+button{
+    cursor: pointer;
+}
+select{
+    cursor: pointer;
+    max-width: 100%;
+}
+/* For IE */
+a{
+    text-decoration: none;
+    outline: 0;
+}
+img{
+    border: none;
+}
+
+/* clearfix hack */
+.row:before,
+.row:after {
+    content:"";
+    display: table;
+    clear:both;
+}
+[class*='col-'] {
+    float: left;
+    min-height: 1px;
+}
+.col-1-6{ width: 16.66%;}
+.col-2-6{ width: 33.33%;}
+.col-3-6{ width: 50%;   }
+.col-4-6{ width: 66.66%;}
+.col-5-6{ width: 83.33%;}
+.col-6-6{ width: 100%;  }
+/*
+.col-1-6{ width: 16.66%; border: 1px solid black;}
+.col-2-6{ width: 33.33%; border: 1px solid black;}
+.col-3-6{ width: 50%;    border: 1px solid black;}
+.col-4-6{ width: 66.66%; border: 1px solid black;}
+.col-5-6{ width: 83.33%; border: 1px solid black;}
+.col-6-6{ width: 100%;   border: 1px solid black;}
+*/
+
+
+/**********************/
+
+#home-page {
+    margin-top: 60px;
+    text-align: center;
+}
+
+#big-logo {
+    margin-bottom: 30px;
+    width: 100%;
+}
+.homepage-buttons{
+    background-color: #2B7054;
+    color: #efefef;
+    font-size: 2em;
+    padding: 10px;
+    width: 95%;
+    border: 0;
+    border-radius: 16px;
+    transition: background-color 0.1s;
+}
+.homepage-buttons:hover{
+    box-shadow: 0 0 1px 1px #efefef;
+}
+.homepage-buttons:active{
+    background-color: #A6C599;
+    transition: background-color 0.1s;
+}
+#goto-player {
+    float:left;
+}
+#goto-leader {
+    float:right;
+}
+
+footer {
+    position: fixed;
+    z-index: 1;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    text-align:center;
+    font-size: 0.7em;
+}
+footer a{
+    color: #2B7054;
+}

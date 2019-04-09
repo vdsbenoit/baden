@@ -1,3 +1,5 @@
+# -*-coding:UTF-8 -*
+
 import logging
 from os.path import join
 
@@ -16,9 +18,8 @@ class Pages:
     def index(self):
         return Hello.objects().first().world
 
-
-    # @cherrypy.expose
-    # def index(self):
-    #     return open(join(HTML_DIR, "index.html"), 'r').read()
+    @cherrypy.expose
+    def home(self):
+        return open(join(HTML_DIR, "index.html"), 'r').read()
 
 

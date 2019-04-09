@@ -1,0 +1,20 @@
+
+body{
+	width: 95%;
+}
+.col-1-6{ width: 25%; }
+.col-2-6{ width: 100%; }
+.col-3-6{ width: 100%;}
+.col-4-6{ width: 100%; }
+.col-5-6{ width: 100%; }
+.col-6-6{ width: 100%; }
+
+
+#homepage{
+	margin-top: -15px;
+}
+
+.homepage-buttons{
+	width: 100%;
+	margin-bottom: 15px;
+}
