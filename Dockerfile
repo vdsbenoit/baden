@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY baden ./baden
 COPY baden/settings_prod.ini ./baden/settings.ini
 
-CMD [ "python", "baden/main.py" ]
+CMD [ "python", "baden/web.py" ]
