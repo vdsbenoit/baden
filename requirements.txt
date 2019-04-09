@@ -1,3 +1,2 @@
 cherrypy
 mongoengine
-pytest

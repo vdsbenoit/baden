@@ -1,18 +1,13 @@
 # -*-coding:UTF-8 -*
-
-"""
-Baden Battle scores tool.
-"""
 import configparser
 import logging
 
 import model.service
 import model.team
 import model.game
+import model.helloworld
 from model import properties
 from model.properties import SETTINGS_FILE
-
-__author__ = 'Benoit Vander Stappen'
 
 log = logging.getLogger('default')
 
@@ -34,12 +29,9 @@ def logger_setup():
     log.debug("####################  NEW INSTANCE  ####################")
 
 
-def main():
+def initialize():
     logger_setup()
     properties.parse_settings()
     model.service.setup_db()
-    print("end")
 
 
-if __name__ == "__main__":
-    main()

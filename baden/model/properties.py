@@ -1,7 +1,7 @@
 import configparser
 from os.path import abspath, dirname, join
 
-from exceptions import ConfigurationException, BadenException
+from exceptions import BadenException
 
 PROJECT_ROOT = abspath(dirname(dirname(__file__)))
 SETTINGS_FILE = join(PROJECT_ROOT, "settings.ini")
@@ -22,7 +22,6 @@ def parse_settings():
 
     try:
         globals()['LIST_SEPARATOR'] = config['SYSTEM']['list_separator']
-        globals()['GAMES_TABLE_FILE'] = config['CONFIGURATION']['game_table_file']
         globals()['DB_NAME'] = config['DATABASE']['name']
         globals()['DB_HOST'] = config['DATABASE']['host']
         globals()['DB_PORT'] = config['DATABASE'].getint('port')
@@ -31,5 +30,5 @@ def parse_settings():
         globals()['CHERRYPY_MAX_THREAD_POOL'] = config['WEB'].getint('max_thread_pool')
         globals()['WEB_SESSION_TIMEOUT'] = config['WEB'].getint('session_timeout')
 
-    except KeyError:
-        raise ConfigurationException
+    except KeyError as e:
+        raise BadenException("{} key is not set properly in settings.ini".format(str(e)))

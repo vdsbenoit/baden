@@ -9,7 +9,7 @@ class BadenException(Exception):
         logger.error(self)
 
     def __str__(self):
-        return 'Baden encountered an issue: {}'.format(self.msg)
+        return self.msg
 
 
 class BadenError(Exception):
@@ -18,14 +18,4 @@ class BadenError(Exception):
         logger.error(self)
 
     def __str__(self):
-        return 'Baden faced an error: {}'.format(self.msg)
-
-
-class ConfigurationException(Exception):
-    def __init__(self, parameter, msg=""):
-        self.parameter = parameter
-        self.msg = msg
-        logger.error(self)
-
-    def __str__(self):
-        return "'{}' is not set properly in settings file. {}".format(self.parameter, self.msg)
+        return self.msg

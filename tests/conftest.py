@@ -3,7 +3,7 @@ from os.path import abspath, dirname, join
 import pytest
 from mongoengine import *
 
-import main
+import web
 from baden.model import game, team
 from model import properties
 
@@ -14,7 +14,7 @@ GOOD_TEST_TEAM_FILE = join(TEST_DATA_DIR, "teams_right.csv")
 
 @pytest.fixture(scope="session")
 def db():
-    main.logger_setup()
+    web.logger_setup()
     properties.parse_settings()
     db = connect("baden_test_db", host="localhost", port=27017)
     return db

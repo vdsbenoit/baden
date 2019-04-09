@@ -2,8 +2,8 @@ import os
 
 import cherrypy
 
+from controller.api import Api
 from model import properties
-from view.api import Api
 from view.pages import Pages
 
 
@@ -19,17 +19,19 @@ def launch_web_server():
     cherrypy.server.socket_port = properties.WEB_SOCKET_PORT
     cherrypy.server.thread_pool = properties.CHERRYPY_MAX_THREAD_POOL
 
+    static_root_dir = os.path.join(properties.PROJECT_ROOT, "view")
     conf_pages = {
         '/': {
-            'tools.staticdir.root': os.path.join(properties.PROJECT_ROOT, "view", "includes")
+            'tools.staticdir.root': static_root_dir,
+            'tools.staticfile.root': static_root_dir
         },
-        '/includes': {
+        '/static': {
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': './includes'
+            'tools.staticdir.dir': 'static'
         },
         "/favicon.ico": {
             "tools.staticfile.on": True,
-            "tools.staticfile.filename": "/includes/images/favicon.ico"
+            "tools.staticfile.filename": "static/images/favicon/favicon.ico"
         }
     }
     conf_api = {

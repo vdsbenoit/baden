@@ -12,7 +12,11 @@ log = logging.getLogger('default')
 
 
 def setup_db():
-    connect(properties.DB_NAME, host=properties.DB_HOST, port=properties.DB_PORT)
+    connect(
+        properties.DB_NAME,
+        host=properties.DB_HOST,
+        port=properties.DB_PORT,
+    )
 
 
 def get_games(team_code):
