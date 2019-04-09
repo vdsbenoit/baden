@@ -1,14 +1,11 @@
 version: '3'
 
 services:
-  mongo:
+  baden_db:
     image: mongo:4
     container_name: baden_db
     hostname: baden_db
     restart: always
-    cpu_shares: 512
-    mem_limit: 16g
-    memswap_limit: 8g
     logging:
       driver: "json-file"
       options:
@@ -19,15 +16,14 @@ services:
       - /docker/data/baden/db:/data/db
     expose:
       - 27017
+    networks:
+      - largo
 
-  web:
+  baden_web:
     image: vdsbenoit/baden:latest
     container_name: baden_web
     hostname: baden_web
     restart: always
-    cpu_shares: 512
-    mem_limit: 16g
-    memswap_limit: 8g
     logging:
       driver: "json-file"
       options:
@@ -36,11 +32,12 @@ services:
         max-size: "200m"
     expose:
       - 8080
+    depends_on:
+      - baden_db
     networks:
       - largo
 
-  networks:
-    largo:
-      external:
-        name: largo
-
+networks:
+  largo:
+    external:
+      name: largo
