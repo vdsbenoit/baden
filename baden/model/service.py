@@ -19,6 +19,18 @@ def setup_db():
     )
 
 
+def get_section(team_code):
+    return Team.objects(code=team_code).get().section
+
+
+def get_score(team_code):
+    return Team.objects(code=team_code).get().score
+
+
+def get_section_score(team_code):
+    return Team.objects(section=get_section(team_code)).average('score')
+
+
 def get_games(team_code):
     """
     Get list of game for a given team

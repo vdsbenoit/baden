@@ -1,4 +1,4 @@
-<div class="row" id="login-page">
+<div class="row" id="setup-page">
     <div class="col-1-6"></div>
     <div class="col-4-6">
         <div class="row">
@@ -8,19 +8,26 @@
                 </a>
             </div>
             <div class="col-3-4">
-                <div id="title">Connexion</div>
+                <div id="title">Setup</div>
             </div>
         </div>
         <div class="row">
             <form id="login-form" action="{target-page}" method="post">
                 <div class="col-4-6">
-                    <input type="password"
+                    <input type="text"
+                           id="user-pwd"
                            class="password-text"
-                           name="password"
-                           placeholder="Mot de passe"
+                           name="userpwd"
+                           placeholder="Mot de passe utilisateur"
+                           required
                     />
-                    <p id="wrong-password" style="display:none;" class="error-message">Le mot de passe est incorrect</p>
-                    <p id="attack" style="display:none;" class="error-message">Trop d'&eacute;checs. Vous avez &eacute;t&eacute; bloqu&eacute;.</p>
+                    <input type="text"
+                           id="admin-pwd"
+                           class="password-text"
+                           name="adminpwd"
+                           placeholder="Mot de passe admin"
+                           required
+                    />
                 </div>
                 <div class="col-2-6">
                     <button type="submit" id="confirm-password-button">Enregistrer</button>

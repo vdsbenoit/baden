@@ -10,11 +10,21 @@ body{
 .col-6-6{ width: 100%; }
 
 
-#homepage{
-	margin-top: -15px;
+#little-logo{
+    width: 100%;
+}
+
+#title{
+    font-size: 3.5em;
+    text-align: center;
+    padding-top: 0px;
 }
 
 .homepage-buttons{
 	width: 100%;
 	margin-bottom: 15px;
+}
+
+#confirm-password-button {
+	width: 100%;
 }

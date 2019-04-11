@@ -7,7 +7,6 @@ efefef
 FFFFFF
 */
 
-
 /* globals*/
 @viewport {
  width: device-width;
@@ -26,11 +25,19 @@ body {
     max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 0px;
+    margin-top: 60px;
     overflow: hidden;
     min-width: 350px;
+    text-align: center;
+}
+input[type=text]{
+    background-color: #E2EBBE;
+    border: 0;
+    border-radius: 16px;
 }
 button{
+    font-size: 2em;
+    padding: 10px;
     cursor: pointer;
     background-color: #2B7054;
     color: #efefef;
@@ -45,7 +52,6 @@ button:active{
     background-color: #A6C599;
     transition: background-color 0.1s;
 }
-
 /* For IE */
 a{
     text-decoration: none;
@@ -54,7 +60,6 @@ a{
 img{
     border: none;
 }
-
 /* clearfix hack */
 .row:before,
 .row:after {
@@ -66,38 +71,46 @@ img{
     float: left;
     min-height: 1px;
 }
+/*
 .col-1-6{ width: 16.66%;}
 .col-2-6{ width: 33.33%;}
 .col-3-6{ width: 50%;   }
 .col-4-6{ width: 66.66%;}
 .col-5-6{ width: 83.33%;}
 .col-6-6{ width: 100%;  }
-/*
+.col-1-4{ width: 25%;}
+.col-2-4{ width: 50%;}
+.col-3-4{ width: 75%;}
+.col-4-4{ width: 100%;}
+*/
 .col-1-6{ width: 16.66%; border: 1px solid black;}
 .col-2-6{ width: 33.33%; border: 1px solid black;}
 .col-3-6{ width: 50%;    border: 1px solid black;}
 .col-4-6{ width: 66.66%; border: 1px solid black;}
 .col-5-6{ width: 83.33%; border: 1px solid black;}
 .col-6-6{ width: 100%;   border: 1px solid black;}
-*/
+.col-1-4{ width: 25%; border: 1px solid black;}
+.col-2-4{ width: 50%; border: 1px solid black;}
+.col-3-4{ width: 75%; border: 1px solid black;}
+.col-4-4{ width: 100%; border: 1px solid black;}
 
-#logo{
-    width:60%;
+#little-logo{
+    width:100%;
 }
-
+#title{
+    font-size: 3em;
+    text-align: left;
+    padding-left: 15px;
+    padding-top: 35px;
+}
 /**********************/
-
 #home-page {
-    margin-top: 60px;
-    text-align: center;
 }
 #big-logo {
     margin-bottom: 30px;
     width: 100%;
 }
 .homepage-buttons{
-    font-size: 2em;
-    padding: 10px;
     width: 95%;
 }
 #goto-player {
@@ -107,24 +120,56 @@ img{
     float:right;
 }
 /**********************/
-
 #login-page {
 }
-#password-text {
-    float:left;
+#login-form{
+    margin-top: 100px;
 }
-wrong-password{
+.password-text {
+    float:left;
+    width:100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size:2em;
+}
+.password-text::placeholder{
+    text-align: center;
+}
+.error-message{
     color: red;
 }
-#confirm-password {
-    padding:10 px;
+#confirm-password-button {
     float:right;
+    width:95%;
 }
+/**********************/
+#player-page{
+}
+#player-form{
+    margin-top: 50px;
+}
+.team-code-field{
+    width: 85%;
+    padding: 10px;
+    font-size:1.6em;
+}
+#qr-code-button{
+    width:50%;
+    border-radius: 10px;
+}
+#scores{
+    margin-top: 40px;
+    font-size: 1.5em;
+}
+#get-score-button{
+    margin-top: 40px;
+    width: 90%;
+}
+
 
 
 
 /**********************/
-
 footer {
     position: fixed;
     z-index: 1;
