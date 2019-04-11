@@ -36,16 +36,23 @@ class Pages:
 
     @cherrypy.expose
     def home(self):
-        return get_html("home.html")
+        if self.leader_password and self.admin_password:
+            return get_html("home.html")
+        else:
+            return self.setup()
 
     @cherrypy.expose
     def player(self, teamcode=None):
         page = get_html("player.html")
         if teamcode:
+            if not service.is_team(teamcode):
+                page = page.replace("{teamcode}", teamcode)
+                return page.replace('id="wrong-teamcode" style="display:none;"', 'id="wrong-teamcode"')
             cherrypy.session['player_teamcode'] = teamcode
         else:
             teamcode = cherrypy.session.get('player_teamcode', None)
         if teamcode:
+            log.info("Team {} checked its score".format(teamcode))
             page = page.replace("{teamcode}", teamcode)
             page = page.replace("{section-name}", str(service.get_section(teamcode)))
             page = page.replace("{section-score}", str(service.get_section_score(teamcode)))
@@ -105,6 +112,7 @@ class Pages:
     @cherrypy.expose
     def setup(self, adminpwd=None, userpwd=None):
         if adminpwd and userpwd:
+            log.info("Passwords set up")
             self.admin_password = adminpwd
             self.leader_password = userpwd
         if self.leader_password and self.admin_password:

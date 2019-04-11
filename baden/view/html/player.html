@@ -1,4 +1,4 @@
-<div class="row" id="player-page">
+<div class="row page" id="player-page">
     <div class="col-1-6"></div>
     <div class="col-4-6">
         <div class="row">
@@ -15,17 +15,22 @@
             <div class="row">
                 <div class="col-3-4">
                     <input type="text"
+                           id="player-team-code"
                            class="team-code-field"
                            name="teamcode"
                            value="{teamcode}"
 
                     />
+                    <p id="wrong-teamcode" style="display:none;" class="error-message">Cette &eacute;quipe n'existe pas</p>
                 </div>
                 <div class="col-1-4">
-                    <img id="qr-code-button" alt="capture QR code" src="./static/images/sample-qr-code.png">
+                    <img id="player-qr-code-button" class="click-img" alt="capture QR code" src="./static/images/sample-qr-code.png">
                 </div>
             </div>
         </form>
+        <div class="row">
+            <video id="preview"></video>
+        </div>
         <div id="scores" style="display:none;">
             <div class="row">
                 <div class="col-3-4">

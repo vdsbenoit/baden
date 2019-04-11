@@ -19,6 +19,14 @@ def setup_db():
     )
 
 
+def is_team(team_code):
+    try:
+        Team.objects(code=team_code).get()
+        return True
+    except DoesNotExist:
+        return False
+
+
 def get_section(team_code):
     return Team.objects(code=team_code).get().section
 
