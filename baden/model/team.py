@@ -85,4 +85,4 @@ def drop_teams():
     """
     Clean teams collection
     """
-    Team.objects().delete()
+    Team.drop_collection()

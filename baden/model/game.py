@@ -11,7 +11,7 @@ class Game(Document):
     circuit = StringField(required=True, max_length=2)
     number = IntField(required=True)
     name = StringField(max_length=100)
-    players = ListField(IntField(), required=True)
+    players = ListField(IntField(), required=True)  # player numbers
     time = IntField(required=True)
 
 
@@ -71,4 +71,4 @@ def drop_games():
     """
     Drop games collection
     """
-    Game.objects().delete()
+    Game.drop_collection()

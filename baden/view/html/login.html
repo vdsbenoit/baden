@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+    Baden Battle score app project
+    Created by Benoit Vander Stappen
+    2019
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Baden Battle Scores</title>
+    <link rel="stylesheet" href="./static/css/base.css"/>
+    <link rel="stylesheet" href="./static/css/mobile.css" media="all and (max-width: 800px)"/>
+    <link rel="icon" type="image/ico" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./static/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-180x180.png">
+    <link rel="icon" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" sizes="512x512" href="/android-chrome-512x512.png">
+</head>
+<body>
+<div class="row" id="login-page">
+    <div class="col-1-6"></div>
+    <div class="col-4-6">
+        <div class="row">
+            <img id="logo" alt="BadenBattle-logo" src="static/images/logo.png"/>
+        </div>
+        <div class="row">
+            <form action="{target-page}" method="post">
+                <div class="col-4-6">
+                    <input type="password"
+                           id="password-text"
+                           class="login-fields"
+                           name="password"
+                           placeholder="Mot de passe"
+                    />
+                    <p id="wrong-password" style="display:none;">Le mot de passe est incorrect</p>
+                    <p id="attack" style="display:none;">Trop d'&eacute;checs. Vous avez &eacute;t&eacute; bloqu&eacute;.</p>
+                </div>
+                <div class="col-2-6">
+                    <button type="submit" id="confirm-password" class="login-fields">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-1-6"></div>
+</div>
+<footer>
+    Baden Battle score app<br/>
+    <a href="mailto:vdsbenoit@gmail.com?subject=Baden Battle web app feedback" target="_top">
+        Created by Benoit Vander Stappen
+    </a><br/>
+</footer>
+</body>
+</html>

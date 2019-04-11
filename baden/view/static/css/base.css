@@ -32,11 +32,20 @@ body {
 }
 button{
     cursor: pointer;
+    background-color: #2B7054;
+    color: #efefef;
+    border: 0;
+    border-radius: 16px;
+    transition: background-color 0.1s;
 }
-select{
-    cursor: pointer;
-    max-width: 100%;
+button:hover{
+    box-shadow: 0 0 1px 1px #efefef;
 }
+button:active{
+    background-color: #A6C599;
+    transition: background-color 0.1s;
+}
+
 /* For IE */
 a{
     text-decoration: none;
@@ -72,6 +81,9 @@ img{
 .col-6-6{ width: 100%;   border: 1px solid black;}
 */
 
+#logo{
+    width:60%;
+}
 
 /**********************/
 
@@ -79,27 +91,14 @@ img{
     margin-top: 60px;
     text-align: center;
 }
-
 #big-logo {
     margin-bottom: 30px;
     width: 100%;
 }
 .homepage-buttons{
-    background-color: #2B7054;
-    color: #efefef;
     font-size: 2em;
     padding: 10px;
     width: 95%;
-    border: 0;
-    border-radius: 16px;
-    transition: background-color 0.1s;
-}
-.homepage-buttons:hover{
-    box-shadow: 0 0 1px 1px #efefef;
-}
-.homepage-buttons:active{
-    background-color: #A6C599;
-    transition: background-color 0.1s;
 }
 #goto-player {
     float:left;
@@ -107,6 +106,24 @@ img{
 #goto-leader {
     float:right;
 }
+/**********************/
+
+#login-page {
+}
+#password-text {
+    float:left;
+}
+wrong-password{
+    color: red;
+}
+#confirm-password {
+    padding:10 px;
+    float:right;
+}
+
+
+
+/**********************/
 
 footer {
     position: fixed;

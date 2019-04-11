@@ -32,6 +32,31 @@ def get_games(team_code):
     return game_list
 
 
+def get_game(game_number, player_code):
+    """
+    Get a game from a game number and a player code
+    :param game_number: the game number
+    :param player_code: the player code
+    :return: the target Game object
+    """
+    player_number = Team.objects(code=player_code).get()
+    return Game.objects(number=game_number, players=player_number).get()
+
+
+def get_opponent(game_number, player_code):
+    """
+    Get the opponent of a given player at a given game
+    :param game_number: the game number
+    :param player_code: the player code
+    :return: the Team object of the opponent
+    """
+    player_number = Team.objects(code=player_code).get()
+    game = Game.objects(number=game_number, players=player_number).get()
+    for p in game.players:
+        if p.number != player_number:
+            return Team.objects(number=p.number).get()
+
+
 def get_players(game_number):
     """
     Get list of players for all the rounds of a game
@@ -105,6 +130,14 @@ def get_ranking_by_section(gender=None):
     for section, scores in section_scores.items():
         section_mean_scores[section] = sum(scores) / len(scores)
     return sorted(section_mean_scores.items(), key=lambda kv: kv[1])
+
+
+def get_ranking_by_section2(gender=None):
+    sections = Team.objects(sex=gender).distinct('section') if gender else Team.objects().distinct('section')
+    mean_scores = dict()
+    for section in sections:
+        mean_scores[section] = Team.objects(section=section).average('score')
+    return sorted(mean_scores.items(), key=lambda kv: kv[1])
 
 
 def get_ranking(gender=None):
