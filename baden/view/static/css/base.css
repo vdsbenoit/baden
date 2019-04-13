@@ -34,6 +34,7 @@ body {
     background-color: #D0E095;
 }
 input[type=text]{
+    color: #2B7054;
     background-color: #E2EBBE;
     border: 0;
     border-radius: 16px;
@@ -109,13 +110,6 @@ img{
     padding-left: 15px;
     padding-top: 35px;
 }
-.active{
-    display: block;
-    margin-top: 40px;
-}
-.inactive{
-    display: none;
-}
 /**********************/
 #home-page {
 }
@@ -162,13 +156,27 @@ img{
     margin-top: 50px;
 }
 .team-code-field{
-    width: 85%;
+    text-align: center;
+    margin-left: 40%;
+    width: 50px;
+    height: 50px;
     padding: 10px;
     font-size:1.6em;
+    border-radius: 50% !important;
 }
 #player-qr-code-button{
     width:50%;
     border-radius: 10px;
+}
+#camera-preview-div{
+    margin-top: 40px;
+    display: none;
+}
+#camera-preview{
+    width:100%;
+}
+#no-camera-error{
+    display: none;
 }
 #scores{
     margin-top: 40px;

@@ -39,7 +39,7 @@ class Pages:
         if self.leader_password and self.admin_password:
             return get_html("home.html")
         else:
-            return self.setup()
+            return self.setup()  # fixme: remove before deploy
 
     @cherrypy.expose
     def player(self, teamcode=None):

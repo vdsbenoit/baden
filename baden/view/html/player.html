@@ -13,7 +13,7 @@
         </div>
         <form id="player-form" method="post">
             <div class="row">
-                <div class="col-3-4">
+                <div class="col-1-4">
                     <input type="text"
                            id="player-team-code"
                            class="team-code-field"
@@ -23,13 +23,15 @@
                     />
                     <p id="wrong-teamcode" style="display:none;" class="error-message">Cette &eacute;quipe n'existe pas</p>
                 </div>
+                <div class="col-2-4"></div>
                 <div class="col-1-4">
                     <img id="player-qr-code-button" class="click-img" alt="capture QR code" src="./static/images/sample-qr-code.png">
                 </div>
             </div>
         </form>
-        <div class="row">
-            <video id="preview"></video>
+        <div class="row" id="camera-preview-div">
+            <div id="no-camera-error" class="error-message">No Camera detected</div>
+            <video id="camera-preview">Votre navigateur ne supporte pas l'apercu de la cam&eacute;ra.</video>
         </div>
         <div id="scores" style="display:none;">
             <div class="row">
