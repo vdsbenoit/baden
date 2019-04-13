@@ -3,7 +3,7 @@ from os.path import abspath, dirname, join
 import pytest
 from mongoengine import *
 
-import web
+import controller.util
 from baden.model import game, team
 from model import properties
 
@@ -12,11 +12,23 @@ GOOD_TEST_GAME_FILE = join(TEST_DATA_DIR, "distribution_right.csv")
 GOOD_TEST_TEAM_FILE = join(TEST_DATA_DIR, "teams_right.csv")
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--realdb", action="store_true", default=False,
+        help="Perform tests on a real DB, else on a mock DB"
+    )
+
+
 @pytest.fixture(scope="session")
-def db():
-    web.logger_setup()
+def db(request):
+    controller.util.logger_setup()
     properties.parse_settings()
-    db = connect("baden_test_db", host="localhost", port=27017)
+    if request.config.getoption("--realdb"):
+        db = connect("baden_test_db", host="localhost", port=27017)
+        print("Connected to local database")
+    else:
+        db = connect('mongoenginetest', host='mongomock://localhost')
+        print("Connected to mock database")
     return db
 
 
