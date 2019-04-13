@@ -18,6 +18,10 @@ def launch_web_server():
     cherrypy.server.socket_host = properties.WEB_SOCKET_IP
     cherrypy.server.socket_port = properties.WEB_SOCKET_PORT
     cherrypy.server.thread_pool = properties.CHERRYPY_MAX_THREAD_POOL
+    if properties.SLL_CERTIFICATE:
+        cherrypy.server.sll_module = "builtin"
+        cherrypy.server.ssl_certificate = os.path.join(properties.PROJECT_ROOT, properties.SLL_CERTIFICATE)
+        cherrypy.server.ssl_private_key = os.path.join(properties.PROJECT_ROOT, properties.SSL_KEY)
 
     static_root_dir = os.path.join(properties.PROJECT_ROOT, "view")
     conf_pages = {
