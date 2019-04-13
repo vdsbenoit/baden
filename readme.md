@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/vdsbenoit/baden.svg?branch=master)](https://travis-ci.org/vdsbenoit/baden)
-Baden
+Baden [![Build Status](https://travis-ci.org/vdsbenoit/baden.svg?branch=master)](https://travis-ci.org/vdsbenoit/baden)
 =====
 This software is designed to manage a game played by a huge amount of players IRL.
 It was first designed for a boyscout game involving about 1000 players.
