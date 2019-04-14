@@ -55,7 +55,7 @@ class Pages:
             log.info("Team {} checked its score".format(team_code))
             page = page.replace("{teamcode}", team_code)
             page = page.replace("{section-name}", service.get_section(team_code))
-            page = page.replace("{section-score}", str(service.get_section_score(team_code)))
+            page = page.replace("{section-score}", str(service.get_team_section_score(team_code)))
             page = page.replace("{team-score}", str(service.get_score(team_code)))
             page = page.replace('id="scores" style="display:none;"', 'id="scores"')
         else:
@@ -82,7 +82,12 @@ class Pages:
                     'id="wrong-password"'
                 )
         if cherrypy.session.get('logged'):
-            return get_html("leader.html")
+            page = get_html("leader.html")
+            if game_number:
+                cherrypy.session['game_number'] = game_number
+            game_number = cherrypy.session.get('game_number', "")
+            page = page.replace("{game-number}", game_number)
+            return page
         else:
             return login_page
 
@@ -98,6 +103,7 @@ class Pages:
         if password:
             if password == self.admin_password:
                 cherrypy.session['admin_logged'] = True
+                cherrypy.session['logged'] = True
             else:
                 self.add_login_attempt()
                 login_page = login_page.replace(

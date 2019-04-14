@@ -21,6 +21,10 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def db(request):
+    """
+    Connect to test database.
+    Use a real db local if --realdb option is used, else a mongomock db
+    """
     controller.util.logger_setup()
     properties.parse_settings()
     if request.config.getoption("--realdb"):
@@ -34,6 +38,9 @@ def db(request):
 
 @pytest.fixture(scope="function")
 def empty_db(db):
+    """
+    Empty database
+    """
     game.drop_games()
     team.drop_teams()
     return db
@@ -41,9 +48,27 @@ def empty_db(db):
 
 @pytest.fixture(scope="function")
 def clean_db(db):
-    game.drop_games()
+    """
+    Cleared database
+    """
     team.drop_teams()
-    game.load_file(GOOD_TEST_GAME_FILE)
     team.load_file(GOOD_TEST_TEAM_FILE)
+    game.drop_games()
+    game.load_file(GOOD_TEST_GAME_FILE)
+    game.load_file(join(TEST_DATA_DIR, "distribution2.csv"))
+    game.load_file(join(TEST_DATA_DIR, "distribution3.csv"))
     return db
+
+
+@pytest.fixture(scope="function")
+def distributed_clean_db(clean_db):
+    """
+    Distribute team numbers in an ascending way.
+    """
+    iterator = 1
+    for t in team.Team.objects().order_by("code"):
+        t.number = iterator
+        iterator += 1
+        t.save()
+    return clean_db
 

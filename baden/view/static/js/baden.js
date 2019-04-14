@@ -52,12 +52,14 @@ function setGameResult(result)
 }
 function setGameName()
 {
+	let gameNumber = $('#game-number').val();
+	if (gameNumber == "") return;
     $.ajax({
 		url: 'api/get_game_name',
 		type: 'GET',
 		dataType: 'text',
 		data: {
-			'game_number': $('#game-number').val()
+			'game_number': gameNumber
 		}
 	}).done(function (data) {
 		$('#game-name').text(data);
@@ -195,6 +197,7 @@ function autoComplete(){
 
 $(document).ready(function()
 {
+	setGameName()
 	closePreviewButton.click(stopScan);
 	$('#player-qr-code-button').click(function() {startScan(('#player-qr-code-button'), setPlayerResult);});
 	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), setGameResult);});

@@ -215,6 +215,7 @@ img{
 }
 #winner-row{
     margin-top: 25px;
+
 }
 .leader-name-field{
     padding: 7px;
@@ -228,7 +229,8 @@ img{
 }
 #winner-selection{
     padding: 8px;
-    width: 95%
+    width: 95%;
+    text-align: center;
 }
 
 

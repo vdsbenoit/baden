@@ -14,34 +14,14 @@ class Team(Document):
     code = StringField(unique=True, required=True, max_length=10)  # A1, A2, B1, ...
     section = StringField(max_length=100, required=True)
     sex = StringField(max_length=1, required=True)  # M F
-    score = IntField(default=0)
-    victories = IntField(default=0)
-    evens = IntField(default=0)
-
-
-def add_victory(code):
-    """
-    Add a victory to a team
-    :param code: team code
-    """
-    team = Team.objects(code=code).get()
-    team.victories += 1
-    team.score += 2
-    team.save()
-
-
-def add_even(code):
-    """
-    Add an even to a team
-    :param code: team code
-    """
-    team = Team.objects(code=code).get()
-    team.evens += 1
-    team.score += 1
-    team.save()
 
 
 def load_file(file_name):
+    """
+    Load team data from a file.
+    The collection does not have to be cleared before loading from the file as the primary key is the identifier number.
+    :param file_name: path to the file
+    """
     modified_teams = list()
     alphabet = []
     for letter in range(65, 91):
@@ -67,17 +47,6 @@ def load_file(file_name):
             if letter_iterator > 25:
                 raise BadenException("The software does not handle more than 26 sections for now.")
     for team in modified_teams:
-        team.save()
-
-
-def reset_scores():
-    """
-    Reset the scores of all the teams
-    """
-    for team in Team.objects():
-        team.score = 0
-        team.victories = 0
-        team.evens = 0
         team.save()
 
 

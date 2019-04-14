@@ -6,6 +6,7 @@ from exceptions import BadenException
 PROJECT_ROOT = abspath(dirname(dirname(__file__)))
 SETTINGS_FILE = join(PROJECT_ROOT, "settings.ini")
 LIST_SEPARATOR = ""
+SCORE_DIGITS = 0  # todo: remove if not used
 GAMES_TABLE_FILE = ""
 DB_NAME = ""
 DB_HOST = ""
@@ -24,6 +25,7 @@ def parse_settings():
 
     try:
         globals()['LIST_SEPARATOR'] = config['SYSTEM']['list_separator']
+        globals()['SCORE_DIGITS'] = config['GAME'].getint('score_digits')
         globals()['DB_NAME'] = config['DATABASE']['name']
         globals()['DB_HOST'] = config['DATABASE']['host']
         globals()['DB_PORT'] = config['DATABASE'].getint('port')

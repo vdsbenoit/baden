@@ -12,10 +12,16 @@ class Game(Document):
     number = IntField(required=True)
     name = StringField(max_length=100)
     players = ListField(IntField(), required=True)  # player numbers
+    winner = (IntField(default=-1))
     time = IntField(required=True)
 
 
 def load_file(file_name):
+    """
+    Load game data from a file.
+    Do not forget to drop the collection before re-importing a same file!
+    :param file_name: path to the file
+    """
     modified_games = list()
     circuit = ""
     with open(file_name, mode="r", encoding='utf-8-sig') as file:
@@ -41,6 +47,13 @@ def load_file(file_name):
 
 
 def validate_game_collection():
+    """
+    Assert the game setup complies with the following constraints:
+        - a team cannot play against itself
+        - a team cannot play against another team more one than once
+        - a team cannot play a game more than once
+        - a team cannot play two games at the same time
+    """
     duel_set_list = list()
     for time in range(1, 22):
         player_list = list()
@@ -65,6 +78,15 @@ def validate_game_collection():
             assert players[1] not in player_list, "Team {} plays twice the game {}".format(players[1], game_number)
             player_list.append(players[0])
             player_list.append(players[1])
+
+
+def reset_scores():
+    """
+    Reset all the scores
+    """
+    for game in Game.objects():
+        game.winner = -1
+        game.save()
 
 
 def drop_games():
