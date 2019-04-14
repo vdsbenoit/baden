@@ -26,3 +26,4 @@ It was first designed for a boyscout game involving about 1000 players.
 - Nimiq QR scanner
 - nginx
 - Docker
+- docx-mailmerge

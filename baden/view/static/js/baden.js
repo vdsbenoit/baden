@@ -211,7 +211,7 @@ $(document).ready(function()
 {
 	if (document.getElementById('game-number') != null) getGameName();
 	closePreviewButton.click(stopScan);
-	$('#player-qr-code-button').click(function() {startScan(('#player-qr-code-button'), setPlayerResult);});
+	$('#player-qr-code-button').click(function() {startScan($('#player-qr-code-button'), setPlayerResult);});
 	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), setGameResult);});
 	$('#scan-team1-button').click(function() {startScan($('#scan-team1-button'), setTeam1Result);});
 	$('#scan-team2-button').click(function() {startScan($('#scan-team2-button'), setTeam2Result);});

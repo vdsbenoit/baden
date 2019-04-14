@@ -4,6 +4,7 @@ from os.path import abspath, dirname, join
 from exceptions import BadenException
 
 PROJECT_ROOT = abspath(dirname(dirname(__file__)))
+DATA_DIR = join(PROJECT_ROOT, "data")
 SETTINGS_FILE = join(PROJECT_ROOT, "settings.ini")
 LIST_SEPARATOR = ""
 SCORE_DIGITS = 0  # todo: remove if not used
