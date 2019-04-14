@@ -6,6 +6,29 @@ from baden.model import game, service, team
 from .conftest import TEST_DATA_DIR
 
 
+def test_is_team(clean_db):
+    assert service.is_team("A1")
+    assert service.is_team("B2")
+    assert service.is_team("C3")
+    assert service.is_team("D4")
+    assert not service.is_team("A6")
+    assert not service.is_team("2A")
+    assert not service.is_team("1")
+    assert not service.is_team("A")
+    assert not service.is_team("")
+
+
+def test_is_game(clean_db):
+    assert service.is_game(1)
+    assert service.is_game(10)
+    assert service.is_game(21)
+    assert service.is_game("1")
+    assert not service.is_game("0")
+    assert not service.is_game(0)
+    assert not service.is_game(-1)
+    assert not service.is_game(22)
+
+
 def distribute_ascending_team_numbers():
     """
     Distribute team numbers in an ascending way.

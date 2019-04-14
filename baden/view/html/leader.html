@@ -1,0 +1,78 @@
+<div class="row page" id="leader-page">
+    <div class="col-1-6"></div>
+    <div class="col-4-6">
+        <div class="row">
+            <div class="col-1-4">
+                <a href="./index">
+                    <img id="little-logo" alt="BadenBattle-logo" src="static/images/logo.png"/>
+                </a>
+            </div>
+            <div class="col-3-4">
+                <div id="title">Animateur</div>
+            </div>
+        </div>
+        <div class="row" id="camera-preview-div">
+            <div id="no-camera-error" class="error-message">Pas de cam&eacute;ra d&eacute;tect&eacute;e</div>
+            <video id="camera-preview">Votre navigateur ne supporte pas l'apercu de la cam&eacute;ra.</video>
+            <button type="button" id="close-camera-preview">Fermer la cam&eacute;ra</button>
+        </div>
+        <form id="leader-form" method="post">
+            <div class="row leader-form-row">
+                <div class="col-1-4">
+                    <button type="button" id="scan-game-button" class="scan-button">Jeu</button>
+                </div>
+                <div class="col-3-4">
+                    <input type="text"
+                           id="game-number"
+                           class="leader-code-field"
+                           name="game_number"
+                           required
+                    /><span id="game-name" class="leader-name-field"></span>
+                </div>
+            </div>
+            <div class="row leader-form-row">
+                <div class="col-1-4">
+                    <button type="button" id="scan-team1-button" class="scan-button">Team 1</button>
+                </div>
+                <div class="col-3-4">
+                    <input type="text"
+                           id="team1-code"
+                           class="leader-code-field"
+                           name="team1_code"
+                           required
+                    /><span id="team1-name" class="leader-name-field"></span>
+                </div>
+            </div>
+            <div class="row leader-form-row">
+                <div class="col-1-4">
+                    <button type="button" id="scan-team2-button" class="scan-button">Team 2</button>
+                </div>
+                <div class="col-3-4">
+                    <input type="text"
+                           id="team2-code"
+                           class="leader-code-field"
+                           name="team2_code"
+                           required
+                    /><span id="team2-name" class="leader-name-field"></span>
+                </div>
+            </div>
+            <div id="winner-row" class="row leader-form-row">
+                <div class="col-1-4">
+                    <div class="leader-name-field">Vainqueur:</div>
+                </div>
+                <div class="col-3-4">
+                    <select id="winner-selection" name="winner" required>
+                            <option hidden disabled selected value> -- Choisir vainqueur -- </option>
+                            <option id="option-team1" value=""></option>
+                            <option id="option-team2" value=""></option>
+                            <option value="even">Egalit&eacute;</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <button type="submit" form="leader-form" id="send-score" class="large-button">Enregistrer</button>
+        </div>
+    </div>
+    <div class="col-1-6"></div>
+</div>

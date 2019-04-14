@@ -23,6 +23,6 @@ It was first designed for a boyscout game involving about 1000 players.
 - MongoDB + MongoEngine
 - CherryPy
 - jQuery
-- Instascan
+- Nimiq QR scanner
 - nginx
 - Docker

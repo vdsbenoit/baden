@@ -42,21 +42,21 @@ class Pages:
             return self.setup()  # fixme: remove before deploy
 
     @cherrypy.expose
-    def player(self, teamcode=None):
+    def player(self, team_code=None):
         page = get_html("player.html")
-        if teamcode:
-            if not service.is_team(teamcode):
-                page = page.replace("{teamcode}", teamcode)
+        if team_code:
+            if not service.is_team(team_code):
+                page = page.replace("{teamcode}", team_code)
                 return page.replace('id="wrong-teamcode" style="display:none;"', 'id="wrong-teamcode"')
-            cherrypy.session['player_teamcode'] = teamcode
+            cherrypy.session['player_teamcode'] = team_code
         else:
-            teamcode = cherrypy.session.get('player_teamcode', None)
-        if teamcode:
-            log.info("Team {} checked its score".format(teamcode))
-            page = page.replace("{teamcode}", teamcode)
-            page = page.replace("{section-name}", str(service.get_section(teamcode)))
-            page = page.replace("{section-score}", str(service.get_section_score(teamcode)))
-            page = page.replace("{team-score}", str(service.get_score(teamcode)))
+            team_code = cherrypy.session.get('player_teamcode', None)
+        if team_code:
+            log.info("Team {} checked its score".format(team_code))
+            page = page.replace("{teamcode}", team_code)
+            page = page.replace("{section-name}", service.get_section(team_code))
+            page = page.replace("{section-score}", str(service.get_section_score(team_code)))
+            page = page.replace("{team-score}", str(service.get_score(team_code)))
             page = page.replace('id="scores" style="display:none;"', 'id="scores"')
         else:
             page = page.replace("{teamcode}", "")
@@ -64,7 +64,7 @@ class Pages:
         return page
 
     @cherrypy.expose
-    def leader(self, password=None):
+    def leader(self, password=None, team1_code=None, team2_code=None, game_number=None, winner=None):
         login_page = get_html("login.html")
         login_page = login_page.replace("{target-page}", "./leader")
         if self.is_brute_force_attack():

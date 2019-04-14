@@ -1,6 +1,7 @@
 
 body{
 	width: 95%;
+    margin-top: 10px;
 }
 .col-1-6{ width: 25%; }
 .col-2-6{ width: 100%; }
@@ -15,11 +16,13 @@ body{
 }
 
 #title{
-    font-size: 3.5em;
     text-align: center;
     padding-top: 0px;
 }
 
+#home-page{
+    margin-top: 50px;
+}
 .homepage-buttons{
 	width: 100%;
 	margin-bottom: 15px;

@@ -20,11 +20,15 @@ def setup_db():
 
 
 def is_team(team_code):
-    try:
-        Team.objects(code=team_code).get()
-        return True
-    except DoesNotExist:
-        return False
+    return Team.objects(code=team_code).count() > 0
+
+
+def is_game(game_number):
+    return Game.objects(number=game_number).count() > 0
+
+
+def get_game_name(game_number):
+    return Game.objects(number=game_number).first().name
 
 
 def get_section(team_code):
@@ -52,7 +56,7 @@ def get_games(team_code):
     return game_list
 
 
-def get_game(game_number, player_code):
+def get_game_object(game_number, player_code):
     """
     Get a game from a game number and a player code
     :param game_number: the game number
@@ -61,6 +65,18 @@ def get_game(game_number, player_code):
     """
     player_number = Team.objects(code=player_code).get()
     return Game.objects(number=game_number, players=player_number).get()
+
+
+def get_game_from_players(player1_code, player2_code):
+    """
+    Get a game number from the players codes
+    :param player1_code: the first player code
+    :param player2_code: the second player code
+    :return: the target Game object
+    """
+    player1_number = Team.objects(code=player1_code).get()
+    player2_number = Team.objects(code=player2_code).get()
+    return Game.objects(players__all=[player1_number, player2_number]).get()
 
 
 def get_opponent(game_number, player_code):
