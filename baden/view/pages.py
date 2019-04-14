@@ -55,8 +55,8 @@ class Pages:
             log.info("Team {} checked its score".format(team_code))
             page = page.replace("{teamcode}", team_code)
             page = page.replace("{section-name}", service.get_section(team_code))
-            page = page.replace("{section-score}", str(service.get_team_section_score(team_code)))
-            page = page.replace("{team-score}", str(service.get_score(team_code)))
+            page = page.replace("{section-score}", str(round(service.get_team_section_score(team_code), 2)))
+            page = page.replace("{team-score}", str(service.get_score(team_code)[0]))
             page = page.replace('id="scores" style="display:none;"', 'id="scores"')
         else:
             page = page.replace("{teamcode}", "")

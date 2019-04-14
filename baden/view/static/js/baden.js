@@ -50,28 +50,39 @@ function setGameResult(result)
     stopScan();
     $('#game-number').text(result).change();
 }
-function setGameName()
+function getGameName()
 {
 	let gameNumber = $('#game-number').val();
-	if (gameNumber == "") return;
-    $.ajax({
-		url: 'api/get_game_name',
-		type: 'GET',
-		dataType: 'text',
-		data: {
-			'game_number': gameNumber
-		}
-	}).done(function (data) {
-		$('#game-name').text(data);
-		if (data.substring(0,5) == "Error")
-		{
-			$('#game-name').addClass('error-message');
-		}
-	}).fail(function () {
-		alert("Could not contact server");
-	});
+	if (gameNumber == "")
+	{
+		$('#game-name').text("");
+	}
+	else
+	{
+		$.ajax({
+			url: 'api/get_game_name',
+			type: 'GET',
+			dataType: 'text',
+			data: {
+				'game_number': gameNumber
+			}
+		}).done(function (data) {
+			if (data.substring(0,5) == "Error")
+			{
+				$('#game-name').addClass('error-message');
+				$('#game-name').text(data.substring(7));
+			}
+			else
+			{
+				$('#game-name').removeClass('error-message');
+				$('#game-name').text(data);
+			}
+		}).fail(function () {
+			alert("Error: could retrieve game name");
+		});
+	}
 }
-function setTeamName(teamIndex)
+function getTeamName(teamIndex)
 {
 	let teamCode = $('#team' + teamIndex + '-code').val();
 	if (teamCode == "")
@@ -88,19 +99,20 @@ function setTeamName(teamIndex)
 				'team_code': teamCode
 		 		}
 		}).done(function (data) {
-			$('#team' + teamIndex + '-name').text(data);
 			if (data.substring(0,5) == "Error")
 			{
 				$('#team' + teamIndex + '-name').addClass('error-message');
+				$('#team' + teamIndex + '-name').text(data.substring(7));
 			}
 			else
 			{
+				$('#team' + teamIndex + '-name').text(data);
 				$('#team' + teamIndex + '-name').removeClass('error-message');
 				$('#option-team' + teamIndex).val(data);
 				$('#option-team' + teamIndex).text(teamCode + ' - ' + data);
 			}
 		}).fail(function () {
-			alert("Could not contact server");
+			alert("Error: could retrieve team name");
 		});
 	}
 }
@@ -131,16 +143,16 @@ function autoComplete(){
 					'game_number': gameNumber
 			 		}
 			}).done(function (data) {
-				if (data.substring(0,5) != "Error")
+				if (data.substring(0,5) == "Error")
+				{
+					alert(data.substring(7));
+				}
+				else if (data != "")
 				{
 					$('#team2-code').val(data).change();
 				}
-				else
-				{
-					alert(data);
-				}
 			}).fail(function () {
-			alert("Could not contact server");
+			alert("Error: could not autocomplete 1");
 		});
 		}
 		if (team1Code == "" && team2Code != "")
@@ -154,16 +166,16 @@ function autoComplete(){
 					'game_number': gameNumber
 			 		}
 			}).done(function (data) {
-				if (data.substring(0,5) != "Error")
+				if (data.substring(0,5) == "Error")
+				{
+					alert(data.substring(7));
+				}
+				else if (data != "")
 				{
 					$('#team1-code').val(data).change();
 				}
-				else
-				{
-					alert(data);
-				}
 			}).fail(function () {
-			alert("Could not contact server");
+			alert("Error: could not autocomplete 2");
 		});
 		}
 	}
@@ -180,16 +192,16 @@ function autoComplete(){
 					'team2_code': team2Code
 			 		}
 			}).done(function (data) {
-				if (data.substring(0,5) != "Error")
+				if (data.substring(0,5) == "Error")
+				{
+					alert(data.substring(7));
+				}
+				else if (data != "")
 				{
 					$('#game-number').val(data).change();
 				}
-				else
-				{
-					alert(data);
-				}
 			}).fail(function () {
-			alert("Could not contact server");
+			alert("Error: could not autocomplete 3");
 		});
 		}
 	}
@@ -197,15 +209,15 @@ function autoComplete(){
 
 $(document).ready(function()
 {
-	setGameName()
+	if (document.getElementById('game-number') != null) getGameName();
 	closePreviewButton.click(stopScan);
 	$('#player-qr-code-button').click(function() {startScan(('#player-qr-code-button'), setPlayerResult);});
 	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), setGameResult);});
 	$('#scan-team1-button').click(function() {startScan($('#scan-team1-button'), setTeam1Result);});
 	$('#scan-team2-button').click(function() {startScan($('#scan-team2-button'), setTeam2Result);});
-	$('#team1-code').change(function() {setTeamName(1);});
-	$('#team2-code').change(function() {setTeamName(2);});
-	$('#game-number').change(setGameName);
+	$('#team1-code').change(function() {getTeamName(1);});
+	$('#team2-code').change(function() {getTeamName(2);});
+	$('#game-number').change(getGameName);
 	$('#team1-code').change(autoComplete);
 	$('#team2-code').change(autoComplete);
 	$('#game-number').change(autoComplete);
