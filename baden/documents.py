@@ -2,7 +2,7 @@
 
 """
 Baden Battle scores tool.
-Roadmaps generation
+Documents generation (roadmaps & tables)
 """
 import logging
 import controller.util

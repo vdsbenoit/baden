@@ -17,12 +17,12 @@ GAME_ROADMAP_TEMPLATE = os.path.join(properties.DATA_DIR, "game_roadmap_template
 def generate_team_roadmaps():
     tb_merging = []
     for team in Team.objects():
-        team_dict = dict(sectionName=team.section,
+        team_dict = dict(section=team.section,
                          teamCode=team.code)
         games = service.get_games(team.code)
         for i in range(len(games)):
             team_dict["game{}".format(i+1)] = games[i].name
-            team_dict["gameID{}".format(i+1)] = str(games[i].number)
+            team_dict["gID{}".format(i+1)] = str(games[i].number)
         tb_merging.append(team_dict)
 
     with MailMerge(TEAM_ROADMAP_TEMPLATE) as document:
@@ -36,7 +36,7 @@ def generate_game_roadmaps():
     for name in game_names:
         game = Game.objects(name=name).first()
         game_dict = dict(gameName=name,
-                         gameID=str(game.number),
+                         gID=str(game.number),
                          circuit=game.circuit)
         i = 1
         for players in service.get_players(game.number):
