@@ -17,4 +17,4 @@ log = logging.getLogger('default')
 if __name__ == "__main__":
     controller.util.initialize()
     controller.roadmap.generate_team_roadmaps()
-    controller.roadmap.generate_game_roadmaps()
+    # controller.roadmap.generate_game_roadmaps()
