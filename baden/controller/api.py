@@ -2,6 +2,7 @@ import logging
 
 import cherrypy
 
+from exceptions import BadenException
 from model import service
 from mongoengine import DoesNotExist
 
@@ -57,7 +58,7 @@ class Api:
         except DoesNotExist:
             msg = "Pas de combinaison trouvée pour {} au jeu {}".format(team_code, int_game_number)
             log.info(msg)
-            return "Error : " + msg
+            return "Error: " + msg
 
     @cherrypy.expose
     def get_game_number(self, team1_code, team2_code):
@@ -72,11 +73,18 @@ class Api:
                     str(cherrypy.request.remote.ip), team1_code, team2_code))
             return ""
         try:
-            return service.get_game_info(team_code=team1_code, team2_code=team2_code)["number"]
+            return str(service.get_game_info(team_code=team1_code, team2_code=team2_code)["number"])
         except DoesNotExist:
             msg = "Les équipes {} et {} ne sont pas censées jouer ensemble".format(team1_code, team2_code)
             log.info(msg)
-            return "Error : " + msg
+            return "Error: " + msg
+
+    @cherrypy.expose
+    def get_hash_translation(self, value):
+        try:
+            return str(service.get_hash_translation(value))
+        except BadenException:
+            return "Error: Le code QR n'est pas valide"
 
     @cherrypy.expose
     def set_winner(self, game_number, winner_code, loser_code):

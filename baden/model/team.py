@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 from mongoengine import *
@@ -14,6 +15,7 @@ class Team(Document):
     code = StringField(unique=True, required=True, max_length=10)  # A1, A2, B1, ...
     section = StringField(max_length=100, required=True)
     sex = StringField(max_length=1, required=True)  # M F
+    hash = StringField(required=True, max_length=40)
 
 
 def load_file(file_name):
@@ -41,6 +43,7 @@ def load_file(file_name):
                 if cells[0] not in "MF":
                     raise BadenException("Gender field must be M or F")
                 team.code = "{}{}".format(alphabet[letter_iterator], i + 1)
+                team.hash = hashlib.sha1("Baden {} Battle".format(team.code).encode()).hexdigest()
                 modified_teams.append(team)
                 nb_iterator += 1
             letter_iterator += 1

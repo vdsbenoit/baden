@@ -1,3 +1,5 @@
+import hashlib
+
 from mongoengine import *
 
 import logging
@@ -14,6 +16,7 @@ class Game(Document):
     players = ListField(IntField(), required=True)  # player numbers
     winner = (IntField(default=-1))
     time = IntField(required=True)
+    hash = StringField(required=True, max_length=40)
 
 
 def load_file(file_name):
@@ -37,6 +40,7 @@ def load_file(file_name):
                 game = Game()
                 game.circuit = circuit
                 game.number = int(cells[0])
+                game.hash = hashlib.sha1("Baden {} Battle".format(cells[0]).encode()).hexdigest()
                 game.name = cells[1]
                 game.players.append(int(cells[i]))
                 game.players.append(int(cells[i+1]))

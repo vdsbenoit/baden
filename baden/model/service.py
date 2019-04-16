@@ -39,6 +39,16 @@ def get_team_code(team_number):
     return Team.objects(number=team_number).get().code
 
 
+def get_hash_translation(hash_value):
+    game = Game.objects(hash=hash_value).first()
+    if game:
+        return game.number
+    try:
+        return Team.objects(hash=hash_value).get().code
+    except DoesNotExist:
+        raise BadenException("No teams nor games found for hash {}".format(hash_value))
+
+
 def get_opponent_code(game_number, team_code):
     """
     Get the opponent of a given player at a given game

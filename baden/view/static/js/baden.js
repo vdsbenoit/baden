@@ -9,18 +9,18 @@ const closePreviewButton = $('#close-camera-preview');
 var scanner = null;
 var currentScanSource = null;
 
-function startScan(source, callback)
+function startScan(source, targetFieldId)
 {
 	if (scanner != null)
 	{
-		scanner._onDecode = callback;
+		scanner._onDecode = result => afterScan(result, targetFieldId);
 		currentScanSource.removeClass('activated-button');
 		source.addClass('activated-button');
 		currentScanSource = source;
 	}
 	else if (QrScanner.hasCamera())
 	{
-		scanner = new QrScanner(preview, result => callback(result));
+		scanner = new QrScanner(preview, result => afterScan(result, targetFieldId));
 		source.addClass('activated-button');
 		currentScanSource = source;
 		scanner.start();
@@ -30,7 +30,6 @@ function startScan(source, callback)
 		noCameraErrorDiv.show();
 	}
 }
-
 function stopScan()
 {
 	previewDiv.slideUp(200);
@@ -40,15 +39,28 @@ function stopScan()
     currentScanSource = null;
 
 }
-function setPlayerResult(result)
-{
-    stopScan();
-    $('#player-team-code').val(result);
-}
-function setGameResult(result)
-{
-    stopScan();
-    $('#game-number').text(result).change();
+function afterScan(scanValue, targetFieldId){
+	stopScan();
+	$.ajax({
+			url: 'api/get_hash_translation',
+			type: 'GET',
+			dataType: 'text',
+			data: {
+				'value': scanValue
+			}
+		}).done(function(data){
+			if (data.substring(0,5) == "Error")
+			{
+				alert(data.substring(7));
+			}
+			else
+			{
+				$('#' + targetFieldId).val(data).change();
+			}
+		})
+		.fail(function () {
+			alert("Error: could retrieve QR code data");
+		});
 }
 function getGameName()
 {
@@ -115,16 +127,6 @@ function getTeamName(teamIndex)
 			alert("Error: could retrieve team name");
 		});
 	}
-}
-function setTeam1Result(result)
-{
-    stopScan();
-	$('#team1-code').val(result).change();
-}
-function setTeam2Result(result)
-{
-    stopScan();
-	$('#team2-code').val(result).change()
 }
 function autoComplete(){
 	let gameNumber = $('#game-number').val();
@@ -211,10 +213,10 @@ $(document).ready(function()
 {
 	if (document.getElementById('game-number') != null) getGameName();
 	closePreviewButton.click(stopScan);
-	$('#player-qr-code-button').click(function() {startScan($('#player-qr-code-button'), setPlayerResult);});
-	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), setGameResult);});
-	$('#scan-team1-button').click(function() {startScan($('#scan-team1-button'), setTeam1Result);});
-	$('#scan-team2-button').click(function() {startScan($('#scan-team2-button'), setTeam2Result);});
+	$('#player-qr-code-button').click(function() {startScan($('#player-qr-code-button'), 'player-team-code');});
+	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), 'game-number');});
+	$('#scan-team1-button').click(function() {startScan($('#scan-team1-button'), 'team1-code');});
+	$('#scan-team2-button').click(function() {startScan($('#scan-team2-button'), 'team2-code');});
 	$('#team1-code').change(function() {getTeamName(1);});
 	$('#team2-code').change(function() {getTeamName(2);});
 	$('#game-number').change(getGameName);

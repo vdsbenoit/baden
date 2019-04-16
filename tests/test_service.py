@@ -1,3 +1,5 @@
+import hashlib
+
 import pytest
 
 from baden.model import service, team
@@ -48,6 +50,23 @@ def test_get_team_code(distributed_clean_db):
     assert service.get_team_code(41) == "I2", "I2 is supposed to be the team number 41"
     assert service.get_team_code(126) == "X4", "X4 is supposed to be the team number 126"
     assert service.get_team_code(83) == "Q2", "Q2 is supposed to be the team number 83"
+
+
+def test_get_hash_translation(distributed_clean_db):
+    game_numbers = [1, 20, 23, 63]
+    team_codes = ["A1", "B3", "J4", "X3"]
+    for number in game_numbers:
+        assert service.get_hash_translation(hashlib.sha1("Baden {} Battle".format(number).encode()).hexdigest()) == number
+    for code in team_codes:
+        assert service.get_hash_translation(hashlib.sha1("Baden {} Battle".format(code).encode()).hexdigest()) == code
+    with pytest.raises(BadenException) as e:
+        hash_value = hashlib.sha1("Baden {} Battle".format(0).encode()).hexdigest()
+        service.get_hash_translation(hash_value)
+        assert "No teams nor games found for hash {}".format(hash_value) in str(e.value)
+    with pytest.raises(BadenException) as e:
+        hash_value = hashlib.sha1("Baden {} Battle".format("Z2").encode()).hexdigest()
+        service.get_hash_translation(hash_value)
+        assert "No teams nor games found for hash {}".format(hash_value) in str(e.value)
 
 
 def test_get_opponent_code(distributed_clean_db):
