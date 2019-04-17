@@ -162,8 +162,8 @@ def distribute_numbers(ignore_sex=False):
     if ignore_sex:
         modified_teams += shuffle(Team.objects(), 1)
     else:
-        modified_teams += shuffle(Team.objects(sex="F"), 1)
-        modified_teams += shuffle(Team.objects(sex="M"), Team.objects(sex="F").count() + 1)
+        modified_teams += shuffle(Team.objects(sex="M"), 1)
+        modified_teams += shuffle(Team.objects(sex="F"), len(modified_teams) + 1)
     for t1 in modified_teams:
         for t2 in modified_teams:
             if t1.number == t2.number and t1.id != t2.id:
