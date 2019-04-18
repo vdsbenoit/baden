@@ -1,2 +1,3 @@
-docx-mailmerge # TNGPS patch-1 https://github.com/TNGPS/docx-mailmerge/tree/patch-1
-qrcode[pil]
+docxcompose
+docxtpl
+pyqrcode
