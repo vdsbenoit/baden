@@ -144,16 +144,16 @@ def test_get_players(distributed_clean_db):
 
 def test_distribution(clean_db):
     service.distribute_numbers(False)
-    for t in team.Team.objects(sex="F"):
-        assert t.number > 0, "A female team received a number lower than 1 : {}".format(t.number)
-        assert t.number < 43, "A female team received a number higher than 42 : {}".format(t.number)
     for t in team.Team.objects(sex="M"):
-        assert t.number > 42, "A male team received a number lower than 42 : {}".format(t.number)
-        assert t.number < 127, "A male team received a number higher than 126 : {}".format(t.number)
+        assert t.number > 0, "A male team received a number lower than 1 : {}".format(t.number)
+        assert t.number <= 84, "A male team received a number higher than 42 : {}".format(t.number)
+    for t in team.Team.objects(sex="F"):
+        assert t.number > 84, "A female team received a number lower than 42 : {}".format(t.number)
+        assert t.number <= 126, "A female team received a number higher than 126 : {}".format(t.number)
     service.distribute_numbers(True)
     for t in team.Team.objects():
-        assert t.number > 0, "A male team received a number lower than 0 : {}".format(t.number)
-        assert t.number < 127, "A male team received a number higher than 126 : {}".format(t.number)
+        assert t.number > 0, "A team received a number lower than 0 : {}".format(t.number)
+        assert t.number <= 126, "A team received a number higher than 126 : {}".format(t.number)
 
 
 def test_set_winner(distributed_clean_db):
@@ -190,6 +190,7 @@ def test_score(distributed_clean_db):
     assert service.get_score("A3")[0] == 2, "Team A3 should have 2 points"
     assert service.get_score("A3")[1] == 0, "Team A3 should have 0 victories"
     assert service.get_score("A3")[2] == 2, "Team A3 should have 2 evens"
+    assert service.get_score("A3")[3] == 1, "Team A3 should have 1 defeat"
     assert service.get_score("A4")[0] == 1, "Team A4 should have 1 points"
     assert service.get_score("A4")[1] == 0, "Team A4 should have 0 victories"
     assert service.get_score("A4")[2] == 1, "Team A4 should have 1 even"

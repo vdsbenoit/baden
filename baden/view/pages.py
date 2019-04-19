@@ -6,8 +6,9 @@ from os.path import join
 import cherrypy
 
 from model import properties
-from model import service
+from model import service, team, game
 from model.helloworld import Hello
+from view import html_util as html
 
 HTML_DIR = join(properties.PROJECT_ROOT, "view", "html")
 
@@ -26,7 +27,22 @@ def get_html(page_name):
     return res
 
 
-class Pages:
+def add_login_attempt():
+    if cherrypy.session.get('failed_login_count'):
+        cherrypy.session["failed_login_count"] += 1
+    else:
+        cherrypy.session["failed_login_count"] = 1
+
+
+def is_brute_force_attack():
+    if cherrypy.session.get('failed_login_count') and cherrypy.session.get('failed_login_count') > 15:
+        log.warning("IP {} tried to brute force the password".format(str(cherrypy.request.remote.ip))) 
+        return True
+    else:
+        return False
+
+
+class UserPages:
     leader_password = ""
     admin_password = ""
 
@@ -92,7 +108,26 @@ class Pages:
             return login_page
 
     @cherrypy.expose
-    def admin(self, password=None):
+    def setup(self, adminpwd=None, userpwd=None):
+        if adminpwd and userpwd:
+            log.info("Passwords set up")
+            self.admin_password = adminpwd
+            self.leader_password = userpwd
+        if self.leader_password and self.admin_password:
+            return "Server is set up."
+        else:
+            return get_html("setup.html").replace("{target-page}", "./setup")
+
+    @cherrypy.expose
+    def log(self):
+        log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r').read()
+        log_content = log_content.replace('\n', "<br/>")
+        return log_content
+
+
+class AdminPages:
+    @cherrypy.expose
+    def index(self, password=None):
         login_page = get_html("login.html")
         login_page = login_page.replace("{target-page}", "./admin")
         if self.is_brute_force_attack():
@@ -116,34 +151,100 @@ class Pages:
             return login_page
 
     @cherrypy.expose
-    def setup(self, adminpwd=None, userpwd=None):
-        if adminpwd and userpwd:
-            log.info("Passwords set up")
-            self.admin_password = adminpwd
-            self.leader_password = userpwd
-        if self.leader_password and self.admin_password:
-            return "Server is set up."
-        else:
-            return get_html("setup.html").replace("{target-page}", "./setup")
+    def teams(self):
+        round_quantity = game.get_round_quantity()
+        code_list = list()
+        code_list.append(open(join(HTML_DIR, "header.html"), 'r').read())
+        with html.div(code_list, 'class="table-responsive"'):
+            with html.table(code_list, 'class="table table-striped table-hover"'):
+                with html.thead(code_list, 'class="thead-light"'):
+                    with html.tr(code_list):
+                        with html.th(code_list, scope="col"):
+                            code_list.append("Team")
+                        with html.th(code_list, scope="col"):
+                            code_list.append("Score")
+                        with html.th(code_list, scope="col"):
+                            code_list.append("Section")
+                        with html.th(code_list, scope="col"):
+                            code_list.append("V")
+                        with html.th(code_list, scope="col"):
+                            code_list.append("D")
+                        for i in range(1, round_quantity + 1):
+                            with html.th(code_list, scope="col"):
+                                code_list.append("t{}".format(i))
+                with html.tbody(code_list):
+                    for tm in team.Team.objects().order_by('number'):
+                        score, victories, evens, defeat = service.get_score(tm.code)
+                        section_score = service.get_section_score(tm.section)
+                        with html.tr(code_list):
+                            color_tag = "table-primary" if tm.sex == "M" else "table-danger"
+                            with html.th(code_list, scope="row", params='class="{}"'.format(color_tag)):
+                                code_list.append(tm.code)
+                            with html.td(code_list):
+                                code_list.append(str(score))
+                            with html.td(code_list):
+                                code_list.append(str(section_score))
+                            with html.td(code_list):
+                                code_list.append(str(victories))
+                            with html.td(code_list):
+                                code_list.append(str(evens))
+                            with html.td(code_list):
+                                code_list.append(str(defeat))
+                            for g in service.get_games(tm.code):
+                                if g.winner == -1:
+                                    color_tag = ""
+                                elif g.winner == tm.number:
+                                    color_tag = "table-success"
+                                elif g.winner == 0:
+                                    color_tag = "table-warning"
+                                else:
+                                    color_tag = "table-danger"
+                                with html.td(code_list, 'class="{}"'.format(color_tag)):
+                                    code_list.append(str(g.number))
+
+        code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
+        return ''.join(code_list)
 
     @cherrypy.expose
-    def log(self):
-        log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r').read()
-        log_content = log_content.replace('\n', "<br/>")
-        return log_content
-
-    @staticmethod
-    def add_login_attempt():
-        if cherrypy.session.get('failed_login_count'):
-            cherrypy.session["failed_login_count"] += 1
-        else:
-            cherrypy.session["failed_login_count"] = 1
-
-    @staticmethod
-    def is_brute_force_attack():
-        if cherrypy.session.get('failed_login_count') and cherrypy.session.get('failed_login_count') > 15:
-            log.warning("IP {} tried to brute force the password".format(str(cherrypy.request.remote.ip))) 
-            return True
-        else:
-            return False
+    def games(self):
+        round_quantity = game.get_round_quantity()
+        game_numbers = sorted(game.Game.objects().distinct("number"))
+        code_list = list()
+        code_list.append(open(join(HTML_DIR, "header.html"), 'r').read())
+        with html.div(code_list, 'class="table-responsive"'):
+            with html.table(code_list, 'class="table table-striped table-hover"'):
+                with html.thead(code_list, 'class="thead-light"'):
+                    with html.tr(code_list):
+                        with html.th(code_list, scope="col"):
+                            code_list.append("Jeu")
+                        for i in range(1, round_quantity + 1):
+                            with html.th(code_list, scope="col"):
+                                code_list.append("t{}".format(i))
+                with html.tbody(code_list):
+                    with html.tr(code_list):
+                        with html.th(code_list, scope="row"):
+                            code_list.append("OK")
+                        for t in range(1, round_quantity + 1):
+                            if  game.get_gathered_point_amount(t) == properties.SCORED_GAME_AMOUNT:
+                                color_tag = "table-success"
+                            elif game.get_gathered_point_amount(t) < properties.SCORED_GAME_AMOUNT:
+                                color_tag = ""
+                            else:
+                                color_tag = "table-danger"
+                            with html.td(code_list, 'class="{}"'.format(color_tag)):
+                                code_list.append(" ")
+                    for game_number in game_numbers:
+                        with html.tr(code_list):
+                            with html.th(code_list, scope="row"):
+                                code_list.append("G".format(game_number))
+                            for t in range(1, round_quantity + 1):
+                                g = service.get_game_info(game_number=game_number, time=t)
+                                color_tag = "table-success" if g["winner"] >= 0 else ""
+                                with html.td(code_list, 'class="{}"'.format(color_tag)):
+                                    if g["winner"] <= 0:
+                                        code_list.append("{} - {}".format(*g["players"]))
+                                    else:
+                                        code_list.append(service.get_team_code(g["winner"]))
+        code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
+        return ''.join(code_list)
 

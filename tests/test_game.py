@@ -45,6 +45,10 @@ def test_player_plays_time_twice(empty_db):
     assert "Team 6 plays two games at time 2" in str(e.value)
 
 
+def test_get_round_quantity(clean_db):
+    assert game.get_round_quantity() == 21, "There should be 21 rounds"
+
+
 def test_reset_scores(distributed_clean_db):
     service.set_winner(1, "A1", "I3")
     service.set_even(2, "A1", "A4")

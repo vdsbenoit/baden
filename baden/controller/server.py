@@ -4,7 +4,7 @@ import cherrypy
 
 from controller.api import Api
 from model import properties
-from view.pages import Pages
+from view.pages import UserPages, AdminPages
 
 
 def launch_web_server():
@@ -45,7 +45,8 @@ def launch_web_server():
     }
 
     # mount application
-    cherrypy.tree.mount(Pages(), "/", conf_pages)
+    cherrypy.tree.mount(UserPages(), "/", conf_pages)
+    cherrypy.tree.mount(AdminPages(), "/admin/", conf_pages)
     cherrypy.tree.mount(Api(), "/api/", conf_api)
 
     # Start the server engine

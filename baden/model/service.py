@@ -224,8 +224,9 @@ def get_score(team_code):
     team_number = Team.objects(code=team_code).get().number
     victories = Game.objects(winner=team_number).count()
     evens = Game.objects(winner=0, players=team_number).count()
+    defeat = Game.objects(winner__gt=0, players=team_number).count()
     score = victories * 2 + evens
-    return score, victories, evens
+    return score, victories, evens, defeat
 
 
 def get_team_section_score(team_code):
@@ -276,7 +277,7 @@ def get_ranking(gender=None):
     teams = Team.objects(sex=gender) if gender else Team.objects()
     scores = list()
     for team in teams:
-        scores.append((team.code, team.section, get_score(team.code)))
+        scores.append((team.code, team.section, get_score(team.code)[0]))
     return sorted(scores, key=lambda xyz: xyz[2], reverse=True)
 
 

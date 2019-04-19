@@ -18,6 +18,7 @@ CHERRYPY_MAX_THREAD_POOL = 0
 WEB_SESSION_TIMEOUT = 0
 SLL_CERTIFICATE = ""
 SSL_KEY = ""
+SCORED_GAME_AMOUNT = 0
 
 
 def parse_settings():
@@ -27,6 +28,7 @@ def parse_settings():
     try:
         globals()['LIST_SEPARATOR'] = config['SYSTEM']['list_separator']
         globals()['SCORE_DIGITS'] = config['GAME'].getint('score_digits')
+        globals()['SCORED_GAME_AMOUNT'] = config['GAME'].getint('scored_game_amount')
         globals()['DB_NAME'] = config['DATABASE']['name']
         globals()['DB_HOST'] = config['DATABASE']['host']
         globals()['DB_PORT'] = config['DATABASE'].getint('port')

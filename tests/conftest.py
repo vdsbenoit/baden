@@ -28,7 +28,7 @@ def db(request):
     controller.util.logger_setup()
     properties.parse_settings()
     if request.config.getoption("--realdb"):
-        db = connect("baden_test_db", host="localhost", port=27017)
+        db = connect("baden_test_db", host=properties.DB_HOST, port=properties.DB_PORT)
         print("Connected to local database")
     else:
         db = connect('mongoenginetest', host='mongomock://localhost')
