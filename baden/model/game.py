@@ -13,6 +13,7 @@ class Game(Document):
     circuit = StringField(required=True, max_length=2)
     number = IntField(required=True)
     name = StringField(max_length=100)
+    leader = StringField(max_length=100)
     players = ListField(IntField(), required=True)  # player numbers
     winner = (IntField(default=-1))
     time = IntField(required=True)
@@ -36,15 +37,16 @@ def load_file(file_name):
                 continue
             if cells[0].lower() == "jeu":
                 continue
-            for i in range(2, len(cells), 2):
+            for i in range(3, len(cells), 2):
                 game = Game()
                 game.circuit = circuit
                 game.number = int(cells[0])
                 game.hash = hashlib.sha1("Baden {} Battle".format(cells[0]).encode()).hexdigest()
                 game.name = cells[1]
+                game.leader = cells[2]
                 game.players.append(int(cells[i]))
                 game.players.append(int(cells[i+1]))
-                game.time = i/2
+                game.time = (i-1)/2
                 modified_games.append(game)
     for game in modified_games:
         game.save()

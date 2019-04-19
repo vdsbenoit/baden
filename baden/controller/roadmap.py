@@ -8,7 +8,6 @@ from docx import Document as Document_compose
 from docx.shared import Mm
 from docxcompose.composer import Composer
 from docxtpl import DocxTemplate, InlineImage
-from mailmerge import MailMerge
 
 from model import service, properties
 from model.game import Game
@@ -20,6 +19,7 @@ LOOP_TEMPLATE = os.path.join(properties.DATA_DIR, "loop_template.docx")
 TEAM_ROADMAP_TEMPLATE = os.path.join(properties.DATA_DIR, "team_roadmap_template.docx")
 GAME_ROADMAP_TEMPLATE = os.path.join(properties.DATA_DIR, "game_roadmap_template.docx")
 QR_SCALE = 4
+QR_SIZE = 37  # in mm
 QUIET_ZONE = 1
 QR_COLOR = (43, 114, 84)
 QR_VERSION = 4
@@ -48,12 +48,12 @@ def generate_team_roadmaps(target_file):
             context = dict(
                 section=team.section,
                 teamCode=team.code,
-                qrCode=InlineImage(tpl, qr_file, width=Mm(37))
+                qrCode=InlineImage(tpl, qr_file, width=Mm(QR_SIZE))
             )
             games = service.get_games(team.code)
             for i, game in enumerate(games, 1):
-                context["game{}".format(i)] = games.name
-                context["gId{}".format(i)] = str(games.number)
+                context["game{}".format(i)] = game.name
+                context["gId{}".format(i)] = str(game.number)
 
             tpl.render(context)
             team_file = os.path.join(tmpdir, "team{}.docx".format(team.code))
@@ -77,16 +77,17 @@ def generate_game_roadmaps(target_file):
 
             context = dict(
                 gameName=name,
-                gID=str(game.number),
+                gId=str(game.number),
                 circuit=game.circuit,
-                qrCode=InlineImage(tpl, qr_file, width=Mm(37))
+                leader=game.leader,
+                qrCode=InlineImage(tpl, qr_file, width=Mm(QR_SIZE))
             )
 
             for i, players in enumerate(service.get_players(game.number), 1):
-                context["teams{}".format(i)] = "{} - {}".format(players[0].code, players[1].code)
+                context["players{}".format(i)] = "{} - {}".format(players[0].code, players[1].code)
 
             tpl.render(context)
-            game_file = os.path.join(tmpdir, "team{}.docx".format(team.code))
+            game_file = os.path.join(tmpdir, "game{}.docx".format(game.number))
             tpl.save(game_file)
             files_to_merge.append(game_file)
 
