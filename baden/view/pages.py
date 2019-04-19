@@ -44,7 +44,28 @@ def is_brute_force_attack():
 
 class UserPages:
     leader_password = ""
-    admin_password = ""
+
+    def request_login(self, origin, password):
+        login_page = get_html("login.html")
+        login_page = login_page.replace("{target-page}", "/{}".format(origin))
+        if is_brute_force_attack():
+            return login_page.replace(
+                'id="attack" style="display:none;"',
+                'id="attack"'
+            )
+        if password:
+            if password == self.leader_password:
+                cherrypy.session['logged'] = True
+            else:
+                add_login_attempt()
+                login_page = login_page.replace(
+                    'id="wrong-password" style="display:none;"',
+                    'id="wrong-password"'
+                )
+        if cherrypy.session.get('logged'):
+            return None
+        else:
+            return login_page
 
     @cherrypy.expose
     def index(self):
@@ -81,39 +102,24 @@ class UserPages:
 
     @cherrypy.expose
     def leader(self, password=None, team1_code=None, team2_code=None, game_number=None, winner=None):
-        login_page = get_html("login.html")
-        login_page = login_page.replace("{target-page}", "./leader")
-        if self.is_brute_force_attack():
-            return login_page.replace(
-                'id="attack" style="display:none;"',
-                'id="attack"'
-            )
-        if password:
-            if password == self.leader_password:
-                cherrypy.session['logged'] = True
-            else:
-                self.add_login_attempt()
-                login_page = login_page.replace(
-                    'id="wrong-password" style="display:none;"',
-                    'id="wrong-password"'
-                )
-        if cherrypy.session.get('logged'):
+        login_page = self.request_login("leader", password)
+        if login_page:
+            return login_page
+        else:
             page = get_html("leader.html")
             if game_number:
                 cherrypy.session['game_number'] = game_number
             game_number = cherrypy.session.get('game_number', "")
             page = page.replace("{game-number}", game_number)
             return page
-        else:
-            return login_page
 
     @cherrypy.expose
     def setup(self, adminpwd=None, userpwd=None):
         if adminpwd and userpwd:
             log.info("Passwords set up")
-            self.admin_password = adminpwd
+            AdminPages.admin_password = adminpwd
             self.leader_password = userpwd
-        if self.leader_password and self.admin_password:
+        if self.leader_password and AdminPages.admin_password:
             return "Server is set up."
         else:
             return get_html("setup.html").replace("{target-page}", "./setup")
@@ -126,11 +132,12 @@ class UserPages:
 
 
 class AdminPages:
-    @cherrypy.expose
-    def index(self, password=None):
+    admin_password = ""
+
+    def request_login(self, origin, password):
         login_page = get_html("login.html")
-        login_page = login_page.replace("{target-page}", "./admin")
-        if self.is_brute_force_attack():
+        login_page = login_page.replace("{target-page}", "/admin/{}".format(origin))
+        if is_brute_force_attack():
             return login_page.replace(
                 'id="attack" style="display:none;"',
                 'id="attack"'
@@ -140,18 +147,26 @@ class AdminPages:
                 cherrypy.session['admin_logged'] = True
                 cherrypy.session['logged'] = True
             else:
-                self.add_login_attempt()
+                add_login_attempt()
                 login_page = login_page.replace(
                     'id="wrong-password" style="display:none;"',
                     'id="wrong-password"'
                 )
-        if not cherrypy.session.get('admin_logged'):
-            return get_html("admin.html")
+        if cherrypy.session.get('admin_logged'):
+            return None
         else:
             return login_page
 
     @cherrypy.expose
-    def teams(self):
+    def index(self, password=None):
+        login_page = self.request_login("index", password)
+        return login_page if login_page else get_html("admin.html")
+
+    @cherrypy.expose
+    def teams(self, password=None):
+        login_page = self.request_login("teams", password)
+        if login_page:
+            return login_page
         round_quantity = game.get_round_quantity()
         code_list = list()
         code_list.append(open(join(HTML_DIR, "header.html"), 'r').read())
@@ -206,7 +221,10 @@ class AdminPages:
         return ''.join(code_list)
 
     @cherrypy.expose
-    def games(self):
+    def games(self, password=None):
+        login_page = self.request_login("games", password)
+        if login_page:
+            return login_page
         round_quantity = game.get_round_quantity()
         game_numbers = sorted(game.Game.objects().distinct("number"))
         code_list = list()
