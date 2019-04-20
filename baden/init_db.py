@@ -7,7 +7,6 @@ Database initialization
 import logging
 from os.path import join
 
-import controller.server
 import controller.util
 import model.game
 import model.service

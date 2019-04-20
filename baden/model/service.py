@@ -108,13 +108,10 @@ def get_games(team_code):
     """
     Get list of game for a given team
     :param team_code: team code
-    :return: list of games ordered in time
+    :return: Game QuerySet ordered in time
     """
-    game_list = list()
     team_number = Team.objects(code=team_code).get().number
-    for game in Game.objects(players=team_number).order_by('time'):
-        game_list.append(game)
-    return game_list
+    return Game.objects(players=team_number).order_by('time')
 
 
 def get_players(game_number):
@@ -219,14 +216,22 @@ def get_score(team_code):
     """
     Get the score of a given team
     :param team_code: a team code
-    :return: a tuple (score, victories, evens)
+    :return: a tuple (score, victories, evens, defeats)
     """
+    victories = 0
+    evens = 0
+    defeats = 0
     team_number = Team.objects(code=team_code).get().number
-    victories = Game.objects(winner=team_number).count()
-    evens = Game.objects(winner=0, players=team_number).count()
-    defeat = Game.objects(winner__gt=0, players=team_number).count()
+    games = Game.objects(players=team_number)
+    for g in games:
+        if g.winner == team_number:
+            victories += 1
+        elif g.winner == 0:
+            evens += 1
+        elif g.winner > 0:
+            defeats += 1
     score = victories * 2 + evens
-    return score, victories, evens, defeat
+    return score, victories, evens, defeats
 
 
 def get_team_section_score(team_code):
@@ -253,6 +258,22 @@ def get_section_score(section):
     for team in teams:
         scores.append(get_score(team.code)[0])
     return sum(scores) / len(scores)
+
+
+def get_all_sections_score():
+    """
+    Get the mean score of a given section
+    :return: a dict of all the section mean scores
+    """
+    section_scores = dict()
+    sections = Team.objects().distinct("section")
+    for section in sections:
+        scores = list()
+        teams = Team.objects(section=section)
+        for team in teams:
+            scores.append(get_score(team.code)[0])
+        section_scores[section] = sum(scores) / len(scores)
+    return section_scores
 
 
 def get_ranking_by_section(gender=None):

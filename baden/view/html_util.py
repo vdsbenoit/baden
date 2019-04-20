@@ -48,3 +48,10 @@ def td(code_list, params=""):
     code_list.append('<td {}>'.format(params))
     yield
     code_list.append('</td>')
+
+
+@contextmanager
+def a(code_list, url, params=""):
+    code_list.append('<a href={} {}>'.format(url, params))
+    yield
+    code_list.append('</a>')

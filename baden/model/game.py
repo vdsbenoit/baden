@@ -61,9 +61,10 @@ def validate_game_collection():
         - a team cannot play against another team more one than once
         - a team cannot play a game more than once
         - a team cannot play two games at the same time
+        - a game cannot have the same hash as another game
     """
     duel_set_list = list()
-    for time in range(1, 22):
+    for time in range(1, len(Game.objects().distinct('time')) + 1):
         player_list = list()
         for g in Game.objects(time=time):
             players = g.players
@@ -86,9 +87,15 @@ def validate_game_collection():
             player_list.append(players[1])
             duel_set_list.append(players_set)
 
-    for game_number in range(1, 22):
+    hash_list = list()
+
+    for game_number in range(1, len(Game.objects().distinct('number')) + 1):
         player_list = list()
-        for g in Game.objects(number=game_number):
+        games = Game.objects(number=game_number)
+        game_hash = games.first().hash
+        assert game_hash not in hash_list, "Hash {} is used twice".format(game_hash)
+        hash_list.append(game_hash)
+        for g in games:
             players = g.players
             assert (
                 players[0] not in player_list

@@ -1,6 +1,7 @@
 import QrScanner from "/static/js/qr-scanner.min.js";
 QrScanner.WORKER_PATH = '/static/js/qr-scanner-worker.min.js';
 
+const NOTIFICATION_TIME = 5;
 const previewDiv = $('#camera-preview-div');
 const preview 	 = document.getElementById('camera-preview');
 const noCameraErrorDiv 	 = $('#no-camera-error');
@@ -212,6 +213,10 @@ function autoComplete(){
 $(document).ready(function()
 {
 	if (document.getElementById('game-number') != null) getGameName();
+	if (document.getElementById('team1-code') != null) getTeamName(1);
+	if (document.getElementById('team2-code') != null) getTeamName(2);
+	if (document.getElementById('team1-previous-code') != null) getTeamName('1-previous');
+	if (document.getElementById('team2-previous-code') != null) getTeamName('2-previous');
 	closePreviewButton.click(stopScan);
 	$('#player-qr-code-button').click(function() {startScan($('#player-qr-code-button'), 'player-team-code');});
 	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), 'game-number');});
@@ -224,4 +229,10 @@ $(document).ready(function()
 	$('#team2-code').change(autoComplete);
 	$('#game-number').change(autoComplete);
 	$('#camera-preview').on('play', function(){previewDiv.slideDown(400);});
+	setTimeout(function(){
+        $('.notification').slideDown(500);
+    }, 500);
+	setTimeout(function(){
+        $('.notification').slideUp(500);
+    }, (NOTIFICATION_TIME + 1) * 1000);
 });

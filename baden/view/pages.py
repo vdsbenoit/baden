@@ -4,6 +4,7 @@ import logging
 from os.path import join
 
 import cherrypy
+from mongoengine import DoesNotExist
 
 from model import properties
 from model import service, team, game
@@ -73,7 +74,7 @@ class UserPages:
 
     @cherrypy.expose
     def home(self):
-        if self.leader_password and self.admin_password:
+        if self.leader_password and AdminPages.admin_password:
             return get_html("home.html")
         else:
             return self.setup()  # fixme: remove before deploy
@@ -101,17 +102,70 @@ class UserPages:
         return page
 
     @cherrypy.expose
-    def leader(self, password=None, team1_code=None, team2_code=None, game_number=None, winner=None):
+    def leader(self, password=None, team1_code=None, team2_code=None, game_number=None, winner=None, confirmed=None):
         login_page = self.request_login("leader", password)
         if login_page:
             return login_page
-        else:
-            page = get_html("leader.html")
-            if game_number:
+
+        page = get_html("leader.html")
+        notification = ""
+        if team1_code and team2_code and game_number:
+            if confirmed:
                 cherrypy.session['game_number'] = game_number
-            game_number = cherrypy.session.get('game_number', "")
-            page = page.replace("{game-number}", game_number)
-            return page
+                try:
+                    service.set_winner(int(game_number), team1_code, team2_code)
+                    notification = 'Le score a bien &eacute;t&eacute; enregistr&eacute;'
+                except Exception:
+                    log.exception("Something bad occurred while an user tried to set a score")
+                    notification = "Le score n'a pas pu &ecirc;tre enregistr&eacute;"
+            else:
+                page = get_html("confirm_score.html")
+                page = page.replace('{game_number}', str(game_number))
+                page = page.replace('{team1_code}', team1_code)
+                page = page.replace('{team2_code}', team2_code)
+                if winner == "even":
+                    page = page.replace('{team1_title}', "Team 1")
+                    page = page.replace('{team2_title}', "Team 2")
+                    page = page.replace('id="equally-scored" style="display: none;"', 'id="equally-scored"')
+                else:
+                    page = page.replace('{team1_title}', "Gagnant")
+                    page = page.replace('{team2_title}', "Perdant")
+                try:
+                    game_info = service.get_game_info(game_number=game_number, team_code=team1_code)
+                    page = page.replace("{time}", str(game_info["time"]))
+                except Exception:
+                    log.error("An user tried to encode an non existing combination: game_number={}, team1={}, "
+                              "team2={}".format(game_number, team1_code, team2_code))
+                    page = page.replace('{notification}', "Cette combinaison n'existe pas")
+                    page = page.replace('id="time-row"', 'id="time-row" style="display: none;"')
+                    page = page.replace('id="confirm-score"', 'id="confirm-score" style="display: none;"')
+                    page = page.replace(
+                        'id="retry-button" style="display: none;"',
+                        'id="retry-button" style="display: block;"'
+                    )
+                    page = page.replace('{notification}', notification)
+                    return page
+                if game_info["winner"] >= 0:
+                    page = page.replace(
+                        'id="previous-equally-scored" style="display: none;"',
+                        'id="previous-equally-scored" style="display: block;"'
+                    )
+                    page = page.replace('{previous_team1_code}', game_info["players"][0])
+                    page = page.replace('{previous_team2_code}', game_info["players"][1])
+                    if game_info["winner"] == 0:
+                        page = page.replace(
+                            'id="previous-equally-scored" style="display: none;"',
+                            'id="previous-equally-scored"'
+                        )
+                        page = page.replace('{previous_team1_title}', "Team 1")
+                        page = page.replace('{previous_team2_title}', "Team 2")
+                    else:
+                        page = page.replace('{previous_team1_title}', "Gagnant")
+                        page = page.replace('{previous_team2_title}', "Perdant")
+        page = page.replace('{notification}', notification)
+        game_number = cherrypy.session.get('game_number', "")
+        page = page.replace("{game-number}", game_number)
+        return page
 
     @cherrypy.expose
     def setup(self, adminpwd=None, userpwd=None):
@@ -168,14 +222,15 @@ class AdminPages:
         if login_page:
             return login_page
         round_quantity = game.get_round_quantity()
+        section_scores = service.get_all_sections_score()
         code_list = list()
-        code_list.append(open(join(HTML_DIR, "header.html"), 'r').read())
-        with html.div(code_list, 'class="table-responsive"'):
-            with html.table(code_list, 'class="table table-striped table-hover"'):
+        code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
+        with html.div(code_list, 'class="table-responsive-sm text-nowrap text-center"'):
+            with html.table(code_list, 'class="table table-bordered table-hover"'):
                 with html.thead(code_list, 'class="thead-light"'):
                     with html.tr(code_list):
                         with html.th(code_list, scope="col"):
-                            code_list.append("Team")
+                            code_list.append("Teams")
                         with html.th(code_list, scope="col"):
                             code_list.append("Score")
                         with html.th(code_list, scope="col"):
@@ -183,14 +238,15 @@ class AdminPages:
                         with html.th(code_list, scope="col"):
                             code_list.append("V")
                         with html.th(code_list, scope="col"):
+                            code_list.append("E")
+                        with html.th(code_list, scope="col"):
                             code_list.append("D")
                         for i in range(1, round_quantity + 1):
                             with html.th(code_list, scope="col"):
                                 code_list.append("t{}".format(i))
                 with html.tbody(code_list):
-                    for tm in team.Team.objects().order_by('number'):
+                    for tm in team.Team.objects().order_by('code'):
                         score, victories, evens, defeat = service.get_score(tm.code)
-                        section_score = service.get_section_score(tm.section)
                         with html.tr(code_list):
                             color_tag = "table-primary" if tm.sex == "M" else "table-danger"
                             with html.th(code_list, scope="row", params='class="{}"'.format(color_tag)):
@@ -198,7 +254,7 @@ class AdminPages:
                             with html.td(code_list):
                                 code_list.append(str(score))
                             with html.td(code_list):
-                                code_list.append(str(section_score))
+                                code_list.append(str(round(section_scores[tm.section], 3)))
                             with html.td(code_list):
                                 code_list.append(str(victories))
                             with html.td(code_list):
@@ -215,7 +271,8 @@ class AdminPages:
                                 else:
                                     color_tag = "table-danger"
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                    code_list.append(str(g.number))
+                                    with html.a(code_list, "/admin/game?number={}".format(g.number)):
+                                        code_list.append(str(g.number))
 
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
@@ -226,11 +283,11 @@ class AdminPages:
         if login_page:
             return login_page
         round_quantity = game.get_round_quantity()
-        game_numbers = sorted(game.Game.objects().distinct("number"))
+        game_numbers = game.Game.objects().distinct("number")
         code_list = list()
-        code_list.append(open(join(HTML_DIR, "header.html"), 'r').read())
-        with html.div(code_list, 'class="table-responsive"'):
-            with html.table(code_list, 'class="table table-striped table-hover"'):
+        code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
+        with html.div(code_list, 'class="table-responsive-sm text-nowrap text-center"'):
+            with html.table(code_list, 'class="table table-bordered table-hover"'):
                 with html.thead(code_list, 'class="thead-light"'):
                     with html.tr(code_list):
                         with html.th(code_list, scope="col"):
@@ -243,9 +300,10 @@ class AdminPages:
                         with html.th(code_list, scope="row"):
                             code_list.append("OK")
                         for t in range(1, round_quantity + 1):
-                            if  game.get_gathered_point_amount(t) == properties.SCORED_GAME_AMOUNT:
+                            gathered_point_amount = game.get_gathered_point_amount(t)
+                            if gathered_point_amount == properties.SCORED_GAME_AMOUNT:
                                 color_tag = "table-success"
-                            elif game.get_gathered_point_amount(t) < properties.SCORED_GAME_AMOUNT:
+                            elif gathered_point_amount < properties.SCORED_GAME_AMOUNT:
                                 color_tag = ""
                             else:
                                 color_tag = "table-danger"
@@ -254,15 +312,13 @@ class AdminPages:
                     for game_number in game_numbers:
                         with html.tr(code_list):
                             with html.th(code_list, scope="row"):
-                                code_list.append("G".format(game_number))
+                                code_list.append("Jeu {}".format(game_number))
                             for t in range(1, round_quantity + 1):
                                 g = service.get_game_info(game_number=game_number, time=t)
                                 color_tag = "table-success" if g["winner"] >= 0 else ""
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                    if g["winner"] <= 0:
+                                    with html.a(code_list, "/admin/game?number={}".format(game_number)):
                                         code_list.append("{} - {}".format(*g["players"]))
-                                    else:
-                                        code_list.append(service.get_team_code(g["winner"]))
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
 

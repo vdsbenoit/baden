@@ -11,6 +11,7 @@
                 <div id="title">Animateur</div>
             </div>
         </div>
+        <div class="notification">{notification}</div>
         <div class="row" id="camera-preview-div">
             <div id="no-camera-error" class="error-message">Pas de cam&eacute;ra d&eacute;tect&eacute;e</div>
             <video id="camera-preview">Votre navigateur ne supporte pas l'apercu de la cam&eacute;ra.</video>
@@ -28,7 +29,7 @@
                            name="game_number"
                            value="{game-number}"
                            required
-                    /><span id="game-name" class="leader-name-field"></span>
+                    /><span id="game-name" class="leader-text-field"></span>
                 </div>
             </div>
             <div class="row leader-form-row">
@@ -41,7 +42,7 @@
                            class="leader-code-field"
                            name="team1_code"
                            required
-                    /><span id="team1-name" class="leader-name-field"></span>
+                    /><span id="team1-name" class="leader-text-field"></span>
                 </div>
             </div>
             <div class="row leader-form-row">
@@ -54,12 +55,12 @@
                            class="leader-code-field"
                            name="team2_code"
                            required
-                    /><span id="team2-name" class="leader-name-field"></span>
+                    /><span id="team2-name" class="leader-text-field"></span>
                 </div>
             </div>
             <div id="winner-row" class="row leader-form-row">
                 <div class="col-1-4">
-                    <div class="leader-name-field">Vainqueur:</div>
+                    <div class="leader-text-field">Vainqueur:</div>
                 </div>
                 <div class="col-3-4">
                     <select id="winner-selection" name="winner" required>

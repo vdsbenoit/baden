@@ -26,7 +26,7 @@ class Api:
         except ValueError:
             log.error("{} unsuccessfully tried to get the game name of game number {}".format(
                 str(cherrypy.request.remote.ip), game_number))
-            return "Error: {} n'est pas un chiffre".format(game_number)
+            return "Error: {} n'est pas un numéro d'épreuve".format(game_number)
         if game_number and service.is_game(int_game_number):
             return service.get_game_name(int_game_number)
         else:
@@ -94,7 +94,7 @@ class Api:
             log.error(
                 "{} unsuccessfully tried to set point to team {} at game {} but the game number is not an interger".format(
                     str(cherrypy.request.remote.ip), winner_code, game_number))
-            return "Error: {} n'est pas un chiffre".format(game_number)
+            return "Error: {} n'est pas un numéro d'épreuve".format(game_number)
         if cherrypy.session.get("logged"):
             if not service.is_team(winner_code):
                 log.error(
@@ -108,10 +108,10 @@ class Api:
                 return "Error: il n'y a pas de team avec le code {}".format(loser_code)
             if not service.is_game(int_game_number):
                 log.error(
-                    "{} unsuccessfully tried to set point to team {} at game {} but loser game number was wrong".format(
+                    "{} unsuccessfully tried to set point to team {} at game {} but the game number was wrong".format(
                         str(cherrypy.request.remote.ip), winner_code, int_game_number))
                 return "Error: il n'y a pas de jeu numéro {}".format(int_game_number)
-            return service.set_winner(int(int_game_number), winner_code, loser_code)
+            return service.set_winner(int_game_number, winner_code, loser_code)
         else:
             log.error("{} tried to set a victory for team {} without being logged".format(
                 str(cherrypy.request.remote.ip), winner_code

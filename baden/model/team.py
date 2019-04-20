@@ -15,7 +15,7 @@ class Team(Document):
     code = StringField(unique=True, required=True, max_length=10)  # A1, A2, B1, ...
     section = StringField(max_length=100, required=True)
     sex = StringField(max_length=1, required=True)  # M F
-    hash = StringField(required=True, max_length=40)
+    hash = StringField(required=True, unique=True, max_length=40)
 
 
 def load_file(file_name):

@@ -17,7 +17,7 @@ FFFFFF
  * {
     box-sizing: border-box;
 }
-.page{
+body{
     font-family: Calibri, Arial, sans-serif;
     background-color: #D0E095;
     color: #2B7054;
@@ -29,6 +29,9 @@ FFFFFF
     overflow: auto;
     min-width: 320px;
     text-align: center;
+}
+.page{
+    background-color: #D0E095;
 }
 input[type=text]{
     color: #2B7054;
@@ -65,7 +68,6 @@ button:active{
 /* For IE */
 a{
     text-decoration: none;
-    outline: 0;
 }
 img{
     border: none;
@@ -130,6 +132,9 @@ img{
     background-color:#ff382f;
     font-size: 1.2em;
     padding: 10px;
+}
+.notification{
+    display: none;
 }
 /**********************/
 #home-page {
@@ -214,14 +219,14 @@ img{
     margin-top: 25px;
 
 }
-.leader-name-field{
+.leader-text-field{
     padding: 7px;
 }
 .leader-code-field{
     text-align: center;
-    width: 38px;
-    height: 38px;
-    padding: 10px;
+    width: 35px;
+    height: 35px;
+    padding: 5px;
     border-radius: 50% !important;
 }
 #winner-selection{
@@ -229,9 +234,21 @@ img{
     width: 95%;
     text-align: center;
 }
-
-
-
+/**********************/
+#confirm-page{
+}
+.confirm-form{
+    text-align: left;
+}
+.confirm-form-row{
+    margin-top: 15px;
+}
+.equally-scored-div{
+    margin-top: 10px;
+}
+#overwrite-score{
+    margin-top: 50px;
+}
 /**********************/
 footer {
     position: fixed;
