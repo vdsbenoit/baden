@@ -37,7 +37,7 @@ def add_login_attempt():
 
 def is_brute_force_attack():
     if cherrypy.session.get('failed_login_count') and cherrypy.session.get('failed_login_count') > 15:
-        log.warning("IP {} tried to brute force the password".format(str(cherrypy.request.remote.ip))) 
+        log.warning("IP {} tried to brute force the password".format(str(cherrypy.request.remote.ip)))
         return True
     else:
         return False
@@ -67,6 +67,7 @@ class UserPages:
             return None
         else:
             return login_page
+
     #
     # @cherrypy.expose
     # def index(self):
@@ -107,17 +108,29 @@ class UserPages:
         if login_page:
             return login_page
 
-        page = get_html("leader.html")
         notification = ""
+        warning = ""
+        page = get_html("leader.html")
         if team1_code and team2_code and game_number:
-            if confirmed:
+            wrong_team1 = False if service.is_team(team1_code) else True
+            wrong_team2 = False if service.is_team(team2_code) else True
+            wrong_game = False if service.is_game(game_number) else True
+            good_values = False if wrong_game or wrong_team1 or wrong_team2 else True
+            if winner and team2_code == winner:
+                team2_code = team1_code
+                team1_code = winner
+            if confirmed and good_values:
                 cherrypy.session['game_number'] = game_number
                 try:
-                    service.set_winner(int(game_number), team1_code, team2_code)
+                    if winner == "even":
+                        service.set_even(int(game_number), team1_code, team2_code)
+                    else:
+                        service.set_winner(int(game_number), team1_code, team2_code)
                     notification = 'Le score a bien &eacute;t&eacute; enregistr&eacute;'
                 except Exception:
                     log.exception("Something bad occurred while an user tried to set a score")
-                    notification = "Le score n'a pas pu &ecirc;tre enregistr&eacute;"
+                    warning = "Le score n'a pas pu &ecirc;tre enregistr&eacute.\n" \
+                              "Merci de le signaler à l'administrateur.;"
             else:
                 page = get_html("confirm_score.html")
                 page = page.replace('{game_number}', str(game_number))
@@ -126,45 +139,40 @@ class UserPages:
                 if winner == "even":
                     page = page.replace('{team1_title}', "Team 1")
                     page = page.replace('{team2_title}', "Team 2")
-                    page = page.replace('id="equally-scored" style="display: none;"', 'id="equally-scored"')
+                    page = page.replace('{even-hidden-input}', '<input type="hidden" name="winner" value="even"/>')
+                    page = html.show(page, "equally-scored")
                 else:
                     page = page.replace('{team1_title}', "Gagnant")
                     page = page.replace('{team2_title}', "Perdant")
+                    page = page.replace('{even-hidden-input}', '')
                 try:
                     game_info = service.get_game_info(game_number=game_number, team_code=team1_code)
                     page = page.replace("{time}", str(game_info["time"]))
+                    if game_info["winner"] >= 0:
+                        page = html.show(page, "previous-score")
+                        if game_info["winner"] == 0:
+                            page = html.show(page, "previous-equally-scored")
+                            page = page.replace('{previous_team1_title}', "Team 1")
+                            page = page.replace('{previous_team2_title}', "Team 2")
+                            page = page.replace('{previous_team1_code}', game_info["players"][0])
+                            page = page.replace('{previous_team2_code}', game_info["players"][1])
+                        else:
+
+                            page = page.replace('{previous_team1_title}', "Gagnant")
+                            page = page.replace('{previous_team2_title}', "Perdant")
+                            page = page.replace('{previous_team1_code}', service.get_team_code(game_info["winner"]))
+                            page = page.replace('{previous_team2_code}', "")
                 except Exception:
                     log.error("An user tried to encode an non existing combination: game_number={}, team1={}, "
                               "team2={}".format(game_number, team1_code, team2_code))
-                    page = page.replace('{notification}', "Cette combinaison n'existe pas")
-                    page = page.replace('id="time-row"', 'id="time-row" style="display: none;"')
-                    page = page.replace('id="confirm-score"', 'id="confirm-score" style="display: none;"')
-                    page = page.replace(
-                        'id="retry-button" style="display: none;"',
-                        'id="retry-button" style="display: block;"'
-                    )
-                    page = page.replace('{notification}', notification)
-                    return page
-                if game_info["winner"] >= 0:
-                    page = page.replace(
-                        'id="previous-equally-scored" style="display: none;"',
-                        'id="previous-equally-scored" style="display: block;"'
-                    )
-                    page = page.replace('{previous_team1_code}', game_info["players"][0])
-                    page = page.replace('{previous_team2_code}', game_info["players"][1])
-                    if game_info["winner"] == 0:
-                        page = page.replace(
-                            'id="previous-equally-scored" style="display: none;"',
-                            'id="previous-equally-scored"'
-                        )
-                        page = page.replace('{previous_team1_title}', "Team 1")
-                        page = page.replace('{previous_team2_title}', "Team 2")
-                    else:
-                        page = page.replace('{previous_team1_title}', "Gagnant")
-                        page = page.replace('{previous_team2_title}', "Perdant")
+                    warning = "Cette combinaison n'existe pas"
+                    page = html.hide(page, "time-row")
+                    page = html.hide(page, "confirm-score")
+                    page = html.show(page, "retry-button")
+
+        page = page.replace("{game-number}", cherrypy.session.get('game_number', ""))
         page = page.replace('{notification}', notification)
-        game_number = cherrypy.session.get('game_number', "")
-        page = page.replace("{game-number}", game_number)
+        page = page.replace('{warning}', warning)
         return page
 
     @cherrypy.expose
@@ -321,4 +329,3 @@ class AdminPages:
                                         code_list.append("{} - {}".format(*g["players"]))
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
-

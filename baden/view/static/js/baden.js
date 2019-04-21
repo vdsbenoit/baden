@@ -1,7 +1,7 @@
 import QrScanner from "/static/js/qr-scanner.min.js";
 QrScanner.WORKER_PATH = '/static/js/qr-scanner-worker.min.js';
 
-const NOTIFICATION_TIME = 5;
+const NOTIFICATION_TIME = 8;
 const previewDiv = $('#camera-preview-div');
 const preview 	 = document.getElementById('camera-preview');
 const noCameraErrorDiv 	 = $('#no-camera-error');
@@ -121,7 +121,7 @@ function getTeamName(teamIndex)
 			{
 				$('#team' + teamIndex + '-name').text(data);
 				$('#team' + teamIndex + '-name').removeClass('error-message');
-				$('#option-team' + teamIndex).val(data);
+				$('#option-team' + teamIndex).val(teamCode);
 				$('#option-team' + teamIndex).text(teamCode + ' - ' + data);
 			}
 		}).fail(function () {
@@ -231,8 +231,10 @@ $(document).ready(function()
 	$('#camera-preview').on('play', function(){previewDiv.slideDown(400);});
 	setTimeout(function(){
         $('.notification').slideDown(500);
+        $('.warning').slideDown(500);
     }, 500);
 	setTimeout(function(){
         $('.notification').slideUp(500);
+        $('.warning').slideUp(500);
     }, (NOTIFICATION_TIME + 1) * 1000);
 });

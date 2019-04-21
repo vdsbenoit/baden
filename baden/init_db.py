@@ -27,5 +27,10 @@ if __name__ == "__main__":
     model.game.load_file(join(properties.DATA_DIR, "distribution2.csv"))
     model.game.load_file(join(properties.DATA_DIR, "distribution3.csv"))
     model.service.distribute_numbers()
+    # iterator = 1
+    # for t in model.team.Team.objects().order_by("code"):
+    #     t.number = iterator
+    #     iterator += 1
+    #     t.save()
     model.game.validate_game_collection()
 

@@ -11,7 +11,8 @@
                 <div id="title">Confirmer</div>
             </div>
         </div>
-        <div id="notification" class="error-message">{notification}</div>
+        <div id="notification">{notification}</div>
+        <div id="warning" class="error-message">{warning}</div>
         <form id="confirm-form" class="confirm-form" method="post">
             <div id="time-row" class="row confirm-form-row">
                 <div class="col-1-4">
@@ -70,6 +71,7 @@
                 </div>
             </div>
             <input type="hidden" name="confirmed" value="True"/>
+            {even-hidden-input}
         </form>
         <div id="previous-score" style="display: none;">
             <div id="overwrite-score" class="error-message">Cette action &eacute;crasera un score existant:</div>
@@ -105,7 +107,7 @@
         </div>
         <div class="row">
             <button type="submit" form="confirm-form" id="confirm-score" class="large-button">Confirmer</button>
-            <button type="submit" formaction="./leader" id="retry-button" style="display: none;" class="large-button">R&eacute;encoder</button>
+            <button type="submit" formaction="/leader" id="retry-button" style="display: none;" class="large-button">R&eacute;encoder</button>
         </div>
     </div>
     <div class="col-1-6"></div>

@@ -55,3 +55,12 @@ def a(code_list, url, params=""):
     code_list.append('<a href={} {}>'.format(url, params))
     yield
     code_list.append('</a>')
+
+
+def show(page_code, dom_id):
+    return page_code.replace('id="{}" style="display: none;"'.format(dom_id), 'id="{}"'.format(dom_id))
+
+
+def hide(page_code, dom_id):
+    return page_code.replace('id="{}"'.format(dom_id), 'id="{}" style="display: none;"'.format(dom_id))
+

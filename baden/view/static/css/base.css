@@ -133,8 +133,8 @@ img{
     font-size: 1.2em;
     padding: 10px;
 }
-.notification{
-    display: none;
+.error-message{
+    color: red;
 }
 /**********************/
 #home-page {
@@ -167,9 +167,6 @@ img{
 }
 .password-text::placeholder{
     text-align: center;
-}
-.error-message{
-    color: red;
 }
 #confirm-password-button {
     float:right;
@@ -244,7 +241,8 @@ img{
     margin-top: 15px;
 }
 .equally-scored-div{
-    margin-top: 10px;
+    margin-top: 20px;
+    font-weight: bold;
 }
 #overwrite-score{
     margin-top: 50px;
