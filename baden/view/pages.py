@@ -67,13 +67,13 @@ class UserPages:
             return None
         else:
             return login_page
+    #
+    # @cherrypy.expose
+    # def index(self):
+    #     return Hello.objects().first().world  fixme: remove
 
     @cherrypy.expose
     def index(self):
-        return Hello.objects().first().world
-
-    @cherrypy.expose
-    def home(self):
         if self.leader_password and AdminPages.admin_password:
             return get_html("home.html")
         else:
