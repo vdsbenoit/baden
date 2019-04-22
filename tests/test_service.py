@@ -1,14 +1,15 @@
 import hashlib
 
 import pytest
-
-from baden.model import service, team
 from mongoengine import DoesNotExist
 
+from baden.model import service
 from exceptions import BadenException
+from model.game import Game
+from model.team import Team
 
 
-def test_is_team(clean_db):
+def test_is_team(distributed_clean_db):
     assert service.is_team("A1")
     assert service.is_team("B2")
     assert service.is_team("C3")
@@ -20,7 +21,7 @@ def test_is_team(clean_db):
     assert not service.is_team("")
 
 
-def test_is_game(clean_db):
+def test_is_game(distributed_clean_db):
     assert service.is_game(1)
     assert service.is_game(10)
     assert service.is_game(21)
@@ -31,7 +32,7 @@ def test_is_game(clean_db):
     assert not service.is_game(64)
 
 
-def test_get_game_name(clean_db):
+def test_get_game_name(distributed_clean_db):
     assert service.get_game_name(1) == "Jeu 1", "Wrong game name"
     assert service.get_game_name(21) == "Jeu 21", "Wrong game name"
     assert service.get_game_name(25) == "Jeu 25", "Wrong game name"
@@ -39,33 +40,26 @@ def test_get_game_name(clean_db):
     assert service.get_game_name(63) == "Jeu 63", "Wrong game name"
 
 
-def test_get_section(clean_db):
-    assert service.get_section("A1") == "Lutin St Symhorien Villers-Saint-Ghislain", "Wrong section name"
+def test_get_section(distributed_clean_db):
+    assert service.get_section("A1") == "Lutin St Symphorien Villers-Saint-Ghislain", "Wrong section name"
     assert service.get_section("J3") == "louveteaux Saintes", "Wrong section name"
     assert service.get_section("X2") == "Louveteaux Lessines", "Wrong section name"
 
 
-def test_get_team_code(distributed_clean_db):
-    assert service.get_team_code(1) == "A1", "A1 is supposed to be the team number 1"
-    assert service.get_team_code(41) == "I2", "I2 is supposed to be the team number 41"
-    assert service.get_team_code(126) == "X4", "X4 is supposed to be the team number 126"
-    assert service.get_team_code(83) == "Q2", "Q2 is supposed to be the team number 83"
-
-
-def test_get_hash_translation(distributed_clean_db):
+def test_resolve_hash(distributed_clean_db):
     game_numbers = [1, 20, 23, 63]
     team_codes = ["A1", "B3", "J4", "X3"]
     for number in game_numbers:
-        assert service.get_hash_translation(hashlib.sha1("Baden {} Battle".format(number).encode()).hexdigest()) == number
+        assert service.resolve_hash(hashlib.sha1("Baden {} Battle".format(number).encode()).hexdigest()) == number
     for code in team_codes:
-        assert service.get_hash_translation(hashlib.sha1("Baden {} Battle".format(code).encode()).hexdigest()) == code
+        assert service.resolve_hash(hashlib.sha1("Baden {} Battle".format(code).encode()).hexdigest()) == code
     with pytest.raises(BadenException) as e:
         hash_value = hashlib.sha1("Baden {} Battle".format(0).encode()).hexdigest()
-        service.get_hash_translation(hash_value)
+        service.resolve_hash(hash_value)
         assert "No teams nor games found for hash {}".format(hash_value) in str(e.value)
     with pytest.raises(BadenException) as e:
         hash_value = hashlib.sha1("Baden {} Battle".format("Z2").encode()).hexdigest()
-        service.get_hash_translation(hash_value)
+        service.resolve_hash(hash_value)
         assert "No teams nor games found for hash {}".format(hash_value) in str(e.value)
 
 
@@ -75,45 +69,12 @@ def test_get_opponent_code(distributed_clean_db):
     assert service.get_opponent_code(14, "C3") == "I1", "I1 is supposed to play against C3 at game 14"
 
 
-def test_get_game(distributed_clean_db):
-    game_info = service.get_game_info(game_number=1, time=1)
-    assert "A1" in game_info["players"], "Player 1 is supposed to play at game 1 at time 1"
-    assert "I3" in game_info["players"], "Player 42 is supposed to play at game 1 at time 1"
-    game_info = service.get_game_info(game_number=13, time=17)
-    assert "A3" in game_info["players"], "Player 1 is supposed to play at game 1 at time 1"
-    assert "D4" in game_info["players"], "Player 42 is supposed to play at game 1 at time 1"
-
-    assert service.get_game_info(game_number=1, team_code="A4")["time"] == 3
-    assert service.get_game_info(game_number=16, team_code="A1")["time"] == 9
-
-    assert service.get_game_info(time=12, team_code="A1")["number"] == 21, "Team A1 should play game 21 at time 12"
-    assert service.get_game_info(time=18, team_code="D4")["number"] == 15, "Team D4 should play game 15 at time 18"
-
-    game_info = service.get_game_info(team_code="E2", team2_code="B5")
-    assert game_info["time"] == 9, "E2 should face B5 at time 9"
-    assert game_info["number"] == 7, "E2 should face B5 at game 9"
-    game_info = service.get_game_info(team_code="F4", team2_code="I2")
-    assert game_info["time"] == 8, "F4 should face I2 at time 8"
-    assert game_info["number"] == 16, "F4 should face I2 at game 18"
-
-    with pytest.raises(BadenException) as e:
-        service.get_game_info(game_number=1, team2_code="A1")
-    assert "You must give a team_code if you want to use team2_code" in str(e.value)
-
-    with pytest.raises(BadenException) as e:
-        service.get_game_info()
-    assert "You must give minimum 2 parameters to find a game" in str(e.value)
-    with pytest.raises(BadenException) as e:
-        service.get_game_info(game_number=1)
-    assert "You must give minimum 2 parameters to find a game" in str(e.value)
-
-
 def check_games(team_code, expected_game_numbers):
-    games = service.get_games(team_code)
-    for i in range(len(games)):
-        assert games[i].number == expected_game_numbers[i], \
+    matches = service.get_matches(team_code)
+    for i, match in enumerate(matches):
+        assert match.game_number == expected_game_numbers[i], \
             "Team {} is supposed to play game {} at time {}. Got {} instead".format(
-                team_code, expected_game_numbers[i], i+1, games[i].number)
+                team_code, expected_game_numbers[i], i+1, match.game_number)
 
 
 def test_get_games(distributed_clean_db):
@@ -123,17 +84,17 @@ def test_get_games(distributed_clean_db):
 
 
 def check_players(game_number, expected_players):
-    player_list = service.get_players(game_number)
-    for i in range(len(player_list)):
+    matches = Game.objects(number=game_number).get().matches
+    for i, match in enumerate(matches):
         expected_player_number_set = {expected_players[i*2], expected_players[i*2+1]}
-        actual_player_numbers_set = {player_list[i][0].number, player_list[i][1].number}
+        actual_player_numbers_set = {*match.players_number}
         assert actual_player_numbers_set == expected_player_number_set, \
             "At time {} players {} and {} are supposed to play. Got {} and {} instead".format(
                 i+1,
                 expected_players[i * 2],
                 expected_players[i * 2 + 1],
-                player_list[i][0].number,
-                player_list[i][1].number)
+                match.players_number[0],
+                match.players_number[1])
 
 
 def test_get_players(distributed_clean_db):
@@ -142,36 +103,26 @@ def test_get_players(distributed_clean_db):
     check_players(21, [21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
 
 
-def test_distribution(clean_db):
-    service.distribute_numbers(False)
-    for t in team.Team.objects(sex="M"):
-        assert t.number > 0, "A male team received a number lower than 1 : {}".format(t.number)
-        assert t.number <= 84, "A male team received a number higher than 42 : {}".format(t.number)
-    for t in team.Team.objects(sex="F"):
-        assert t.number > 84, "A female team received a number lower than 42 : {}".format(t.number)
-        assert t.number <= 126, "A female team received a number higher than 126 : {}".format(t.number)
-    service.distribute_numbers(True)
-    for t in team.Team.objects():
-        assert t.number > 0, "A team received a number lower than 0 : {}".format(t.number)
-        assert t.number <= 126, "A team received a number higher than 126 : {}".format(t.number)
-
-
 def test_set_winner(distributed_clean_db):
-    assert service.set_winner(1, "A1", "I3"), "Game match not found for game 1 with team A1 and team I3"
-    assert service.set_winner(2, "A3", "B1"), "Game match not found for game 3 with team A3 and team B1"
-    assert not service.set_winner(2, "A1", "I3"), "This combination should not exists"
+    service.set_winner(1, "A1", "I3"), "No matches found for game 1 with team A1 and team I3"
+    service.set_winner(2, "A3", "B1"), "No matches found for game 3 with team A3 and team B1"
     with pytest.raises(DoesNotExist):
-        assert not service.set_winner(3, "A0", "I3"), "Team A0 should not exist"
-        assert not service.set_winner(0, "A0", "I3"), "Game 0 should not exist"
+        service.set_winner(2, "A1", "I3"), "This combination should not exists"
+    with pytest.raises(DoesNotExist):
+        service.set_winner(3, "A0", "I3"), "Team A0 should not exist"
+    with pytest.raises(DoesNotExist):
+        service.set_winner(0, "A0", "I3"), "Game 0 should not exist"
 
 
 def test_set_even(distributed_clean_db):
-    assert service.set_winner(11, "D5", "I3"), "Game match not found for game 1 with team A1 and team I3"
-    assert service.set_winner(2, "D4", "D1"), "Game match not found for game 3 with team A3 and team B1"
-    assert not service.set_winner(3, "B2", "I3"), "This combination should not exists"
+    service.set_winner(11, "D5", "I3"), "No matches found for game 1 with team A1 and team I3"
+    service.set_winner(2, "D4", "D1"), "No matches found for game 3 with team A3 and team B1"
     with pytest.raises(DoesNotExist):
-        assert not service.set_winner(3, "A0", "I3"), "Team A0 should not exist"
-        assert not service.set_winner(0, "A0", "I3"), "Game 0 should not exist"
+        service.set_winner(3, "B2", "I3"), "This combination should not exists"
+    with pytest.raises(DoesNotExist):
+        service.set_winner(3, "A0", "I3"), "Team A0 should not exist"
+    with pytest.raises(DoesNotExist):
+        service.set_winner(0, "A0", "I3"), "Game 0 should not exist"
 
 
 def test_score(distributed_clean_db):
@@ -194,8 +145,7 @@ def test_score(distributed_clean_db):
     assert service.get_score("A4")[0] == 1, "Team A4 should have 1 points"
     assert service.get_score("A4")[1] == 0, "Team A4 should have 0 victories"
     assert service.get_score("A4")[2] == 1, "Team A4 should have 1 even"
-    assert service.get_team_section_score("A1") == 10/5, "'A' teams mean score should be {}".format(10/5)
-    a_section = team.Team.objects(code="A1").first().section
+    a_section = Team.objects(code="A1").first().section
     assert service.get_section_score(a_section) == 10/5, "{} mean score should be {}".format(a_section, 10/5)
 
     service.set_winner(24, "J3", "Q1")
@@ -216,8 +166,7 @@ def test_score(distributed_clean_db):
     assert service.get_score("J2")[0] == 1, "Team J2 should have 1 points"
     assert service.get_score("J2")[1] == 0, "Team J2 should have 0 victories"
     assert service.get_score("J2")[2] == 1, "Team J2 should have 1 even"
-    assert service.get_team_section_score("J1") == 10 / 6, "'J' teams mean score should be {}".format(10 / 6)
-    j_section = team.Team.objects(code="J1").first().section
+    j_section = Team.objects(code="J1").first().section
     assert service.get_section_score(j_section) == 10 / 6, "{} mean score should be {}".format(j_section, 10 / 6)
 
     global_section_ranking = service.get_ranking_by_section()

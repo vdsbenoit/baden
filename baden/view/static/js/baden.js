@@ -43,7 +43,7 @@ function stopScan()
 function afterScan(scanValue, targetFieldId){
 	stopScan();
 	$.ajax({
-			url: 'api/get_hash_translation',
+			url: 'api/resolve_hash',
 			type: 'GET',
 			dataType: 'text',
 			data: {
@@ -229,6 +229,7 @@ $(document).ready(function()
 	$('#team2-code').change(autoComplete);
 	$('#game-number').change(autoComplete);
 	$('#camera-preview').on('play', function(){previewDiv.slideDown(400);});
+	$('#retry-button').click(function(){window.location = window.location.href.split("?")[0];});
 	setTimeout(function(){
         $('.notification').slideDown(500);
         $('.warning').slideDown(500);

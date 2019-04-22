@@ -5,7 +5,6 @@ import logging
 import model.service
 import model.team
 import model.game
-import model.helloworld
 from model import properties
 from model.properties import SETTINGS_FILE
 

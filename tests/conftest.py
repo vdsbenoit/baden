@@ -5,7 +5,7 @@ from mongoengine import *
 
 import controller.util
 from baden.model import game, team
-from model import properties
+from model import properties, service
 
 TEST_DATA_DIR = abspath(join(dirname(__file__), "data"))
 GOOD_TEST_GAME_FILE = join(TEST_DATA_DIR, "distribution_right.csv")
@@ -41,34 +41,22 @@ def empty_db(db):
     """
     Empty database
     """
-    game.drop_games()
-    team.drop_teams()
+    team.Team.drop_collection()
+    game.Game.drop_collection()
+    game.Match.drop_collection()
     return db
 
 
 @pytest.fixture(scope="function")
-def clean_db(db):
-    """
-    Cleared database
-    """
-    team.drop_teams()
-    team.load_file(GOOD_TEST_TEAM_FILE)
-    game.drop_games()
-    game.load_file(GOOD_TEST_GAME_FILE)
-    game.load_file(join(TEST_DATA_DIR, "distribution2.csv"))
-    game.load_file(join(TEST_DATA_DIR, "distribution3.csv"))
-    return db
-
-
-@pytest.fixture(scope="function")
-def distributed_clean_db(clean_db):
+def distributed_clean_db(empty_db):
     """
     Distribute team numbers in an ascending way.
     """
-    iterator = 1
-    for t in team.Team.objects().order_by("code"):
-        t.number = iterator
-        iterator += 1
-        t.save()
-    return clean_db
+    team.load_file(GOOD_TEST_TEAM_FILE, False)
+    game.load_file(GOOD_TEST_GAME_FILE)
+    game.load_file(join(TEST_DATA_DIR, "distribution2.csv"))
+    game.load_file(join(TEST_DATA_DIR, "distribution3.csv"))
+    service.set_player_codes()
+    team.set_matches()
+    return empty_db
 

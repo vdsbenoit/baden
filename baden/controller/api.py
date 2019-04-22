@@ -1,10 +1,11 @@
 import logging
 
 import cherrypy
+from mongoengine import DoesNotExist
 
 from exceptions import BadenException
 from model import service
-from mongoengine import DoesNotExist
+from model.match import Match
 
 log = logging.getLogger('default')
 
@@ -73,50 +74,18 @@ class Api:
                     str(cherrypy.request.remote.ip), team1_code, team2_code))
             return ""
         try:
-            return str(service.get_game_info(team_code=team1_code, team2_code=team2_code)["number"])
+            return Match.objects(players_code__all=[team1_code, team2_code]).get().game_number
         except DoesNotExist:
             msg = "Les équipes {} et {} ne sont pas censées jouer ensemble".format(team1_code, team2_code)
             log.info(msg)
             return "Error: " + msg
 
     @cherrypy.expose
-    def get_hash_translation(self, value):
+    def resolve_hash(self, value):
         try:
-            return str(service.get_hash_translation(value))
+            return str(service.resolve_hash(value))
         except BadenException:
             return "Error: Le code QR n'est pas valide"
-
-    @cherrypy.expose
-    def set_winner(self, game_number, winner_code, loser_code):
-        try:
-            int_game_number = int(game_number)
-        except ValueError:
-            log.error(
-                "{} unsuccessfully tried to set point to team {} at game {} but the game number is not an interger".format(
-                    str(cherrypy.request.remote.ip), winner_code, game_number))
-            return "Error: {} n'est pas un numéro d'épreuve".format(game_number)
-        if cherrypy.session.get("logged"):
-            if not service.is_team(winner_code):
-                log.error(
-                    "{} unsuccessfully tried to set point to team {} at game {} but the team code was wrong".format(
-                        str(cherrypy.request.remote.ip), winner_code, int_game_number))
-                return "Error: il n'y a pas de team avec le code {}".format(winner_code)
-            if not service.is_team(loser_code):
-                log.error(
-                    "{} unsuccessfully tried to set point to team {} at game {} but loser team code ({}) was wrong".format(
-                        str(cherrypy.request.remote.ip), winner_code, int_game_number, loser_code))
-                return "Error: il n'y a pas de team avec le code {}".format(loser_code)
-            if not service.is_game(int_game_number):
-                log.error(
-                    "{} unsuccessfully tried to set point to team {} at game {} but the game number was wrong".format(
-                        str(cherrypy.request.remote.ip), winner_code, int_game_number))
-                return "Error: il n'y a pas de jeu numéro {}".format(int_game_number)
-            return service.set_winner(int_game_number, winner_code, loser_code)
-        else:
-            log.error("{} tried to set a victory for team {} without being logged".format(
-                str(cherrypy.request.remote.ip), winner_code
-            ))
-            return "Error: vous n'êtes pas connecté"
 
 
 

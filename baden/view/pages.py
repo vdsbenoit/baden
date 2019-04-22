@@ -4,11 +4,13 @@ import logging
 from os.path import join
 
 import cherrypy
-from mongoengine import DoesNotExist
 
+import model
 from model import properties
-from model import service, team, game
-from model.helloworld import Hello
+from model import service
+from model.team import Team
+from model.game import Game
+from model.match import Match
 from view import html_util as html
 
 HTML_DIR = join(properties.PROJECT_ROOT, "view", "html")
@@ -68,11 +70,6 @@ class UserPages:
         else:
             return login_page
 
-    #
-    # @cherrypy.expose
-    # def index(self):
-    #     return Hello.objects().first().world  fixme: remove
-
     @cherrypy.expose
     def index(self):
         if self.leader_password and AdminPages.admin_password:
@@ -92,9 +89,10 @@ class UserPages:
             team_code = cherrypy.session.get('player_teamcode', None)
         if team_code:
             log.info("Team {} checked its score".format(team_code))
+            section = service.get_section(team_code)
             page = page.replace("{teamcode}", team_code)
-            page = page.replace("{section-name}", service.get_section(team_code))
-            page = page.replace("{section-score}", str(round(service.get_team_section_score(team_code), 2)))
+            page = page.replace("{section-name}", section)
+            page = page.replace("{section-score}", str(round(service.get_section_score(section), 2)))
             page = page.replace("{team-score}", str(service.get_score(team_code)[0]))
             page = page.replace('id="scores" style="display:none;"', 'id="scores"')
         else:
@@ -146,24 +144,28 @@ class UserPages:
                     page = page.replace('{team2_title}', "Perdant")
                     page = page.replace('{even-hidden-input}', '')
                 try:
-                    game_info = service.get_game_info(game_number=game_number, team_code=team1_code)
-                    page = page.replace("{time}", str(game_info["time"]))
-                    if game_info["winner"] >= 0:
+                    match = Match.objects(game_number=game_number, players_code=team1_code).get()
+                    page = page.replace("{time}", str(match.time))
+                    if match.recorded:
                         page = html.show(page, "previous-score")
-                        if game_info["winner"] == 0:
+                        if match.even:
                             page = html.show(page, "previous-equally-scored")
                             page = page.replace('{previous_team1_title}', "Team 1")
                             page = page.replace('{previous_team2_title}', "Team 2")
-                            page = page.replace('{previous_team1_code}', game_info["players"][0])
-                            page = page.replace('{previous_team2_code}', game_info["players"][1])
+                            page = page.replace('{previous_team1_code}', match.players_code[0])
+                            page = page.replace('{previous_team2_code}', match.players_code[1])
                         else:
-
                             page = page.replace('{previous_team1_title}', "Gagnant")
                             page = page.replace('{previous_team2_title}', "Perdant")
-                            page = page.replace('{previous_team1_code}', service.get_team_code(game_info["winner"]))
-                            page = page.replace('{previous_team2_code}', "")
+                            page = page.replace('{previous_team1_code}', match.winner)
+                            page = page.replace('{previous_team2_code}', match.loser)
+                    else:
+                        page = page.replace('{previous_team1_title}', "Team 1")
+                        page = page.replace('{previous_team2_title}', "Team 2")
+                        page = page.replace('{previous_team1_code}', "")
+                        page = page.replace('{previous_team2_code}', "")
                 except Exception:
-                    log.error("An user tried to encode an non existing combination: game_number={}, team1={}, "
+                    log.exception("An user tried to encode an non existing combination: game_number={}, team1={}, "
                               "team2={}".format(game_number, team1_code, team2_code))
                     warning = "Cette combinaison n'existe pas"
                     page = html.hide(page, "time-row")
@@ -229,8 +231,7 @@ class AdminPages:
         login_page = self.request_login("teams", password)
         if login_page:
             return login_page
-        round_quantity = game.get_round_quantity()
-        section_scores = service.get_all_sections_score()
+        match_quantity = model.match.get_match_quantity()
         code_list = list()
         code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
         with html.div(code_list, 'class="table-responsive-sm text-nowrap text-center"'):
@@ -242,45 +243,41 @@ class AdminPages:
                         with html.th(code_list, scope="col"):
                             code_list.append("Score")
                         with html.th(code_list, scope="col"):
-                            code_list.append("Section")
-                        with html.th(code_list, scope="col"):
                             code_list.append("V")
                         with html.th(code_list, scope="col"):
                             code_list.append("E")
                         with html.th(code_list, scope="col"):
                             code_list.append("D")
-                        for i in range(1, round_quantity + 1):
+                        for i in range(1, match_quantity + 1):
                             with html.th(code_list, scope="col"):
                                 code_list.append("t{}".format(i))
                 with html.tbody(code_list):
-                    for tm in team.Team.objects().order_by('code'):
-                        score, victories, evens, defeat = service.get_score(tm.code)
+                    for team in Team.objects().order_by('code'):
+                        score, victories, evens, defeat = service.get_score(team.code)
                         with html.tr(code_list):
-                            color_tag = "table-primary" if tm.sex == "M" else "table-danger"
+                            color_tag = "table-primary" if team.sex == "M" else "table-danger"
                             with html.th(code_list, scope="row", params='class="{}"'.format(color_tag)):
-                                code_list.append(tm.code)
+                                code_list.append(team.code)
                             with html.td(code_list):
                                 code_list.append(str(score))
-                            with html.td(code_list):
-                                code_list.append(str(round(section_scores[tm.section], 3)))
                             with html.td(code_list):
                                 code_list.append(str(victories))
                             with html.td(code_list):
                                 code_list.append(str(evens))
                             with html.td(code_list):
                                 code_list.append(str(defeat))
-                            for g in service.get_games(tm.code):
-                                if g.winner == -1:
+                            for match in team.matches:
+                                if not match.recorded:
                                     color_tag = ""
-                                elif g.winner == tm.number:
-                                    color_tag = "table-success"
-                                elif g.winner == 0:
+                                elif match.even:
                                     color_tag = "table-warning"
+                                elif match.winner == team.code:
+                                    color_tag = "table-success"
                                 else:
                                     color_tag = "table-danger"
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                    with html.a(code_list, "/admin/game?number={}".format(g.number)):
-                                        code_list.append(str(g.number))
+                                    with html.a(code_list, "/admin/match?id={}".format(match.id)):
+                                        code_list.append(str(match.game_number))
 
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
@@ -290,8 +287,7 @@ class AdminPages:
         login_page = self.request_login("games", password)
         if login_page:
             return login_page
-        round_quantity = game.get_round_quantity()
-        game_numbers = game.Game.objects().distinct("number")
+        match_quantity = model.match.get_match_quantity()
         code_list = list()
         code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
         with html.div(code_list, 'class="table-responsive-sm text-nowrap text-center"'):
@@ -300,32 +296,33 @@ class AdminPages:
                     with html.tr(code_list):
                         with html.th(code_list, scope="col"):
                             code_list.append("Jeu")
-                        for i in range(1, round_quantity + 1):
+                        for i in range(1, match_quantity + 1):
                             with html.th(code_list, scope="col"):
                                 code_list.append("t{}".format(i))
                 with html.tbody(code_list):
                     with html.tr(code_list):
                         with html.th(code_list, scope="row"):
                             code_list.append("OK")
-                        for t in range(1, round_quantity + 1):
-                            gathered_point_amount = game.get_gathered_point_amount(t)
-                            if gathered_point_amount == properties.SCORED_GAME_AMOUNT:
+                        for t in range(1, match_quantity + 1):
+                            recorded_scores_amount = model.match.get_recorded_scores_amount(t)
+                            if recorded_scores_amount == properties.SCORED_GAME_AMOUNT:
                                 color_tag = "table-success"
-                            elif gathered_point_amount < properties.SCORED_GAME_AMOUNT:
+                            elif recorded_scores_amount < properties.SCORED_GAME_AMOUNT:
                                 color_tag = ""
                             else:
                                 color_tag = "table-danger"
+                                log.error("There were {} recorded scores at time {} (> {})".format(
+                                    recorded_scores_amount, t, properties.SCORED_GAME_AMOUNT))
                             with html.td(code_list, 'class="{}"'.format(color_tag)):
                                 code_list.append(" ")
-                    for game_number in game_numbers:
+                    for game in Game.objects():
                         with html.tr(code_list):
                             with html.th(code_list, scope="row"):
-                                code_list.append("Jeu {}".format(game_number))
-                            for t in range(1, round_quantity + 1):
-                                g = service.get_game_info(game_number=game_number, time=t)
-                                color_tag = "table-success" if g["winner"] >= 0 else ""
+                                code_list.append("Jeu {}".format(game.number))
+                            for match in game.matches:
+                                color_tag = "table-success" if match.recorded else ""
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                    with html.a(code_list, "/admin/game?number={}".format(game_number)):
-                                        code_list.append("{} - {}".format(*g["players"]))
+                                    with html.a(code_list, "/admin/game?match={}".format(match.id)):
+                                        code_list.append("{} - {}".format(*match.players_code))
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)

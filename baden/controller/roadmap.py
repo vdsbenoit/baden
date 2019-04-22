@@ -50,10 +50,10 @@ def generate_team_roadmaps(target_file):
                 teamCode=team.code,
                 qrCode=InlineImage(tpl, qr_file, width=Mm(QR_SIZE))
             )
-            games = service.get_games(team.code)
-            for i, game in enumerate(games, 1):
-                context["game{}".format(i)] = game.name
-                context["gId{}".format(i)] = str(game.number)
+            for i, match in enumerate(team.matches, 1):
+                game_number = match.game_number
+                context["game{}".format(i)] = Game.objects(number=game_number).get().name
+                context["gId{}".format(i)] = str(game_number)
 
             tpl.render(context)
             team_file = os.path.join(tmpdir, "team{}.docx".format(team.code))
@@ -66,9 +66,7 @@ def generate_team_roadmaps(target_file):
 def generate_game_roadmaps(target_file):
     files_to_merge = list()
     with tempfile.TemporaryDirectory() as tmpdir:
-        game_names = Game.objects().distinct('name')
-        for name in game_names:
-            game = Game.objects(name=name).first()
+        for game in Game.objects():
             tpl = DocxTemplate(GAME_ROADMAP_TEMPLATE)
 
             qr = pyqrcode.create(game.hash, error=QR_ERROR, version=QR_VERSION)
@@ -76,15 +74,15 @@ def generate_game_roadmaps(target_file):
             qr.png(qr_file, scale=QR_SCALE, module_color=QR_COLOR, quiet_zone=QUIET_ZONE)
 
             context = dict(
-                gameName=name,
+                gameName=game.name,
                 gId=str(game.number),
                 circuit=game.circuit,
                 leader=game.leader,
                 qrCode=InlineImage(tpl, qr_file, width=Mm(QR_SIZE))
             )
 
-            for i, players in enumerate(service.get_players(game.number), 1):
-                context["players{}".format(i)] = "{} - {}".format(players[0].code, players[1].code)
+            for i, match in enumerate(game.matches, 1):
+                context["players{}".format(i)] = "{} - {}".format(match.players_code[0], match.players_code[1])
 
             tpl.render(context)
             game_file = os.path.join(tmpdir, "game{}.docx".format(game.number))

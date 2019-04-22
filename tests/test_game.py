@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+import model
 from baden.model import game
 from model import service
 from .conftest import TEST_DATA_DIR, GOOD_TEST_GAME_FILE
@@ -44,28 +45,3 @@ def test_player_plays_time_twice(empty_db):
         game.validate_game_collection()
     assert "Team 6 plays two games at time 2" in str(e.value)
 
-
-def test_get_round_quantity(clean_db):
-    assert game.get_round_quantity() == 21, "There should be 21 rounds"
-
-
-def test_reset_scores(distributed_clean_db):
-    service.set_winner(1, "A1", "I3")
-    service.set_even(2, "A1", "A4")
-    service.set_winner(1, "A2", "A3")
-    service.set_winner(2, "A2", "I2")
-    service.set_even(2, "A3", "B1")
-    service.set_even(3, "A3", "I1")
-    game.reset_scores()
-    assert service.get_score("A1")[0] == 0, "Team A1 should have 0 points"
-    assert service.get_score("A1")[1] == 0, "Team A1 should have 0 victories"
-    assert service.get_score("A1")[2] == 0, "Team A1 should have 0 evens"
-    assert service.get_score("A2")[0] == 0, "Team A2 should have 0 points"
-    assert service.get_score("A2")[1] == 0, "Team A2 should have 0 victories"
-    assert service.get_score("A2")[2] == 0, "Team A2 should have 0 evens"
-    assert service.get_score("A3")[0] == 0, "Team A3 should have 0 points"
-    assert service.get_score("A3")[1] == 0, "Team A3 should have 0 victories"
-    assert service.get_score("A3")[2] == 0, "Team A3 should have 0 evens"
-    assert service.get_score("A4")[0] == 0, "Team A4 should have 0 points"
-    assert service.get_score("A4")[1] == 0, "Team A4 should have 0 victories"
-    assert service.get_score("A4")[2] == 0, "Team A4 should have 0 evens"

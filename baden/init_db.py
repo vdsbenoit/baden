@@ -20,17 +20,15 @@ log = logging.getLogger('default')
 
 if __name__ == "__main__":
     controller.util.initialize()
-    model.team.drop_teams()
-    model.game.drop_games()  # collection is cleared before loading the same files otherwise it would be duplicated
-    model.team.load_file(join(properties.DATA_DIR, "teams.csv"))
+    model.team.Team.drop_collection()
+    model.game.Game.drop_collection()
+    model.game.Match.drop_collection()
+    # collection is cleared before loading the same files otherwise it would be duplicated
+    model.team.load_file(join(properties.DATA_DIR, "teams.csv"), True)
     model.game.load_file(join(properties.DATA_DIR, "distribution1.csv"))
     model.game.load_file(join(properties.DATA_DIR, "distribution2.csv"))
     model.game.load_file(join(properties.DATA_DIR, "distribution3.csv"))
-    model.service.distribute_numbers()
-    # iterator = 1
-    # for t in model.team.Team.objects().order_by("code"):
-    #     t.number = iterator
-    #     iterator += 1
-    #     t.save()
+    model.service.set_player_codes()
+    model.team.set_matches()
     model.game.validate_game_collection()
 
