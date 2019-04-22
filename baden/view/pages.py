@@ -288,6 +288,7 @@ class AdminPages:
         if login_page:
             return login_page
         match_quantity = model.match.get_match_quantity()
+        schedules = service.get_all_schedules()
         code_list = list()
         code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
         with html.div(code_list, 'class="table-responsive-sm text-nowrap text-center"'):
@@ -318,8 +319,8 @@ class AdminPages:
                                 log.error("There were {} recorded scores at time {} (> {})".format(
                                     recorded_scores_amount, t, properties.SCORED_GAME_AMOUNT))
                             with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                code_list.append(" ")
-                    for game in Game.objects():
+                                code_list.append(schedules[t-1])
+                    for game in Game.objects().order_by('number'):
                         with html.tr(code_list):
                             with html.th(code_list, scope="row"):
                                 code_list.append("Jeu {}".format(game.number))

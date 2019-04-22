@@ -1,10 +1,7 @@
 from baden.model import match
 from baden.model import service
 from model.game import Game
-
-SCHEDULES = ["10h08-10h23", "10h25-10h40", "10h42-10h57", "10h59-11h14", "11h16-11h31", "11h33-11h48", "11h50-12h05",
-             "12h07-12h22", "12h24-12H39", "13h38-13h53", "13h55-14h10", "14h12-14h27", "14h29-14h44", "14h46-15h01",
-             "15H03-15h18", "15h20-15h35", "15h37-15h52", "15h54-16h09", "16h11-16h26", "16h28-16h43", "16h45-17h00"]
+from tests.conftest import SCHEDULES
 
 
 def test_schedule_value(distributed_clean_db):

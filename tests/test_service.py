@@ -7,6 +7,7 @@ from baden.model import service
 from exceptions import BadenException
 from model.game import Game
 from model.team import Team
+from tests.conftest import SCHEDULES
 
 
 def test_is_team(distributed_clean_db):
@@ -195,3 +196,8 @@ def test_score(distributed_clean_db):
     assert girls_ranking[1][0] == "A1", "Girls second team should be A1"
     assert girls_ranking[2][0] == "A3", "Girls third team should be A3"
     assert girls_ranking[3][0] == "A4", "Girls fourth team should be A4"
+
+
+def test_get_all_schedules(distributed_clean_db):
+    assert service.get_all_schedules() == SCHEDULES, "Schedules do not match"
+

@@ -2,6 +2,7 @@ import logging
 
 from mongoengine import *
 
+import model
 from exceptions import BadenException
 from model import properties
 from model.game import Game
@@ -178,4 +179,11 @@ def get_ranking(gender=None):
         scores.append((team.code, team.section, get_score(team.code)[0]))
     return sorted(scores, key=lambda xyz: xyz[2], reverse=True)
 
+
+def get_all_schedules():
+    schedules = list()
+    highest_time_game_number = Match.objects(time=model.match.get_match_quantity()).first().game_number
+    for match in Game.objects(number=highest_time_game_number).get().matches:
+        schedules.append(match.schedule)
+    return schedules
 
