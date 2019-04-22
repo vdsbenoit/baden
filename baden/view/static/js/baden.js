@@ -222,6 +222,7 @@ $(document).ready(function()
 	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), 'game-number');});
 	$('#scan-team1-button').click(function() {startScan($('#scan-team1-button'), 'team1-code');});
 	$('#scan-team2-button').click(function() {startScan($('#scan-team2-button'), 'team2-code');});
+	$('#player-team-code').change(function() {$('#get-score-button').click()});
 	$('#team1-code').change(function() {getTeamName(1);});
 	$('#team2-code').change(function() {getTeamName(2);});
 	$('#game-number').change(getGameName);

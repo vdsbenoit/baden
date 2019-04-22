@@ -190,7 +190,7 @@ class UserPages:
 
     @cherrypy.expose
     def log(self):
-        log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r').read()
+        log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r', encoding='utf-8').read()
         log_content = log_content.replace('\n', "<br/>")
         return log_content
 
