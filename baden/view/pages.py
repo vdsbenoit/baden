@@ -159,11 +159,6 @@ class UserPages:
                             page = page.replace('{previous_team2_title}', "Perdant")
                             page = page.replace('{previous_team1_code}', match.winner)
                             page = page.replace('{previous_team2_code}', match.loser)
-                    else:
-                        page = page.replace('{previous_team1_title}', "Team 1")
-                        page = page.replace('{previous_team2_title}', "Team 2")
-                        page = page.replace('{previous_team1_code}', "")
-                        page = page.replace('{previous_team2_code}', "")
                 except Exception:
                     log.exception("An user tried to encode an non existing combination: game_number={}, team1={}, "
                               "team2={}".format(game_number, team1_code, team2_code))
@@ -171,6 +166,11 @@ class UserPages:
                     page = html.hide(page, "time-row")
                     page = html.hide(page, "confirm-score")
                     page = html.show(page, "retry-button")
+                finally:
+                    page = page.replace('{previous_team1_title}', "Team 1")
+                    page = page.replace('{previous_team2_title}', "Team 2")
+                    page = page.replace('{previous_team1_code}', "")
+                    page = page.replace('{previous_team2_code}', "")
 
         page = page.replace("{game-number}", cherrypy.session.get('game_number', ""))
         page = page.replace('{notification}', notification)
