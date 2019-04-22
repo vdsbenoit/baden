@@ -295,7 +295,9 @@ class AdminPages:
                 with html.thead(code_list, 'class="thead-light"'):
                     with html.tr(code_list):
                         with html.th(code_list, scope="col"):
-                            code_list.append("Jeu")
+                            code_list.append("Jeux")
+                        with html.th(code_list, scope="col"):
+                            code_list.append("Circuit")
                         for i in range(1, match_quantity + 1):
                             with html.th(code_list, scope="col"):
                                 code_list.append("t{}".format(i))
@@ -303,6 +305,8 @@ class AdminPages:
                     with html.tr(code_list):
                         with html.th(code_list, scope="row"):
                             code_list.append("OK")
+                        with html.td(code_list):
+                            code_list.append("")
                         for t in range(1, match_quantity + 1):
                             recorded_scores_amount = model.match.get_recorded_scores_amount(t)
                             if recorded_scores_amount == properties.SCORED_GAME_AMOUNT:
@@ -319,6 +323,8 @@ class AdminPages:
                         with html.tr(code_list):
                             with html.th(code_list, scope="row"):
                                 code_list.append("Jeu {}".format(game.number))
+                            with html.td(code_list):
+                                code_list.append(game.circuit)
                             for match in game.matches:
                                 color_tag = "table-success" if match.recorded else ""
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):

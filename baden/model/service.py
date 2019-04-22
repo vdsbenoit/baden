@@ -118,16 +118,9 @@ def get_score(team_code):
     :param team_code: a team code
     :return: a tuple (score, victories, evens, defeats)
     """
-    victories = 0
-    evens = 0
-    defeats = 0
-    for m in Match.objects(players_code=team_code):
-        if m.even:
-            evens += 1
-        elif m.winner == team_code:
-            victories += 1
-        elif m.loser == team_code:
-            defeats += 1
+    evens = Match.objects(players_code=team_code, even=True).count()
+    victories = Match.objects(winner=team_code).count()
+    defeats = Match.objects(loser=team_code).count()
     score = victories * 2 + evens
     return score, victories, evens, defeats
 
