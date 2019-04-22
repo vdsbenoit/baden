@@ -25,6 +25,7 @@ def load_file(file_name):
     :param file_name: path to the file
     """
     circuit = ""
+    schedules = dict()
     with open(file_name, mode="r", encoding="utf-8-sig") as file:
         for line_number, line in enumerate(file):
             line = line[:-1]
@@ -34,6 +35,8 @@ def load_file(file_name):
                 circuit = cells[0]
                 continue
             if line_number == 1:
+                for i in range(3, len(cells), 2):
+                    schedules[i] = (cells[i])
                 continue
             game.number = int(cells[0])
             game.hash = hashlib.sha1("Baden {} Battle".format(cells[0]).encode()).hexdigest()
@@ -43,6 +46,7 @@ def load_file(file_name):
             for i in range(3, len(cells), 2):
                 match = Match()
                 match.time = (i - 1) / 2
+                match.schedule = schedules[i]
                 match.game_number = int(cells[0])
                 match.players_number.append(int(cells[i]))
                 match.players_number.append(int(cells[i + 1]))

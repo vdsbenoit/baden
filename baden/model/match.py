@@ -7,6 +7,7 @@ log = logging.getLogger("default")
 
 class Match(Document):
     time = IntField(required=True)
+    schedule = StringField(required=True, max_length=11)
     game_number = IntField(required=True)
     players_number = ListField(IntField(), required=True)  # player numbers
     players_code = ListField(StringField(max_length=5))

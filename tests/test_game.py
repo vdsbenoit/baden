@@ -2,9 +2,7 @@ import os
 
 import pytest
 
-import model
 from baden.model import game
-from model import service
 from .conftest import TEST_DATA_DIR, GOOD_TEST_GAME_FILE
 
 TEST_GAME_FILE_SAME_PLAYER = os.path.join(TEST_DATA_DIR, "distribution_same_player.csv")
