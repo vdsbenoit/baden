@@ -2,3 +2,8 @@ a{
     text-decoration: none;
     color: black;
 }
+.ranking-title{
+    text-align: center;
+    padding: 10px;
+    color: #2B7054;
+}

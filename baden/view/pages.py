@@ -340,3 +340,119 @@ class AdminPages:
                                         code_list.append("{} - {}".format(*match.players_code))
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
+
+    @cherrypy.expose
+    def ranking(self, password=None, size=1000):
+        login_page = self.request_login("ranking", password)
+        if login_page:
+            return login_page
+        try:
+            size = int(size)
+        except ValueError:
+            return "Size argument not an integer"
+        female_section_ranking = service.get_ranking_by_section("F")
+        male_section_ranking = service.get_ranking_by_section("M")
+        male_ranking = service.get_ranking("M")
+        female_ranking = service.get_ranking("F")
+        code_list = list()
+        code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
+        with html.div(code_list, 'class="container-fluid"'):
+            with html.div(code_list, 'class="row"'):
+                with html.div(code_list, 'class="col"'):
+                    with html.h(4, code_list, 'class="ranking-title"'):
+                        code_list.append("Sections lutins")
+                    with html.table(code_list, 'class="table table-sm table-bordered"'):
+                        with html.thead(code_list, 'class="table-success text-center"'):
+                            with html.tr(code_list):
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("#")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Section")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Pts")
+                        with html.tbody(code_list):
+                            for i, score in enumerate(female_section_ranking):
+                                if i < size:
+                                    with html.tr(code_list):
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(i+1))
+                                        with html.td(code_list):
+                                            code_list.append(score[0])
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(score[1]))
+                with html.div(code_list, 'class="col"'):
+                    with html.h(4, code_list, 'class="ranking-title"'):
+                        code_list.append("Sections louveteaux")
+                    with html.table(code_list, 'class="table table-sm table-bordered"'):
+                        with html.thead(code_list, 'class="table-success text-center"'):
+                            with html.tr(code_list):
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("#")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Section")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Pts")
+                        with html.tbody(code_list):
+                            for i, score in enumerate(male_section_ranking):
+                                if i < size:
+                                    with html.tr(code_list):
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(i+1))
+                                        with html.td(code_list):
+                                            code_list.append(score[0])
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(score[1]))
+                with html.div(code_list, 'class="col"'):
+                    with html.h(4, code_list, 'class="ranking-title"'):
+                        code_list.append("Lutins")
+                    with html.table(code_list, 'class="table table-sm table-bordered"'):
+                        with html.thead(code_list, 'class="table-success text-center"'):
+                            with html.tr(code_list):
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("#")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Team")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Section")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Pts")
+                        with html.tbody(code_list):
+                            for i, score in enumerate(female_ranking):
+                                if i < size:
+                                    with html.tr(code_list):
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(i+1))
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(score[0])
+                                        with html.td(code_list):
+                                            code_list.append(score[1])
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(score[2]))
+                with html.div(code_list, 'class="col"'):
+                    with html.h(4, code_list, 'class="ranking-title"'):
+                        code_list.append("Louveteaux")
+                    with html.table(code_list, 'class="table table-sm table-bordered"'):
+                        with html.thead(code_list, 'class="table-success text-center"'):
+                            with html.tr(code_list):
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("#")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Team")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Section")
+                                with html.th(code_list, scope="col"):
+                                    code_list.append("Pts")
+                        with html.tbody(code_list):
+                            for i, score in enumerate(male_ranking):
+                                if i < size:
+                                    with html.tr(code_list):
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(i+1))
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(score[0])
+                                        with html.td(code_list):
+                                            code_list.append(score[1])
+                                        with html.td(code_list, 'class="text-center"'):
+                                            code_list.append(str(score[2]))
+        code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
+        return ''.join(code_list)

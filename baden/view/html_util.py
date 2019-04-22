@@ -52,9 +52,16 @@ def td(code_list, params=""):
 
 @contextmanager
 def a(code_list, url, params=""):
-    code_list.append('<a href={} {}>'.format(url, params))
+    code_list.append('<a href={} {}>\n'.format(url, params))
     yield
-    code_list.append('</a>')
+    code_list.append('</a>\n')
+
+
+@contextmanager
+def h(indice, code_list, params=""):
+    code_list.append('<h{} {}>\n'.format(indice, params))
+    yield
+    code_list.append('</h{}>\n'.format(indice))
 
 
 def show(page_code, dom_id):

@@ -139,18 +139,6 @@ def get_section_score(section):
     return sum(scores) / len(scores)
 
 
-def get_all_sections_score():
-    """
-    Get the mean score of a given section
-    :return: a dict of all the section mean scores
-    """
-    section_scores = dict()
-    sections = Team.objects().distinct("section")
-    for section in sections:
-        section_scores[section] = get_section_score(section)
-    return section_scores
-
-
 def get_ranking_by_section(gender_filter=None):
     """
     Get the ranking by section. Scores is based on the average of all the teams of each section
