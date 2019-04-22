@@ -56,6 +56,8 @@ class UserPages:
                 'id="attack" style="display:none;"',
                 'id="attack"'
             )
+        if not UserPages.leader_password or not AdminPages.admin_password:
+            return "Please ask an admin to initiate the server"
         if password:
             if password == self.leader_password:
                 cherrypy.session['logged'] = True
@@ -75,7 +77,7 @@ class UserPages:
         if self.leader_password and AdminPages.admin_password:
             return get_html("home.html")
         else:
-            return self.setup()  # fixme: remove before deploy
+            return "Please ask an admin to initiate the server"
 
     @cherrypy.expose
     def player(self, team_code=None):
@@ -178,17 +180,6 @@ class UserPages:
         return page
 
     @cherrypy.expose
-    def setup(self, adminpwd=None, userpwd=None):
-        if adminpwd and userpwd:
-            log.info("Passwords set up")
-            AdminPages.admin_password = adminpwd
-            self.leader_password = userpwd
-        if self.leader_password and AdminPages.admin_password:
-            return "Server is set up."
-        else:
-            return get_html("setup.html").replace("{target-page}", "./setup")
-
-    @cherrypy.expose
     def log(self):
         log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r', encoding='utf-8').read()
         log_content = log_content.replace('\n', "<br/>")
@@ -206,6 +197,8 @@ class AdminPages:
                 'id="attack" style="display:none;"',
                 'id="attack"'
             )
+        if not UserPages.leader_password or not AdminPages.admin_password:
+            return "Please ask an admin to initiate the server"
         if password:
             if password == self.admin_password:
                 cherrypy.session['admin_logged'] = True
@@ -224,7 +217,21 @@ class AdminPages:
     @cherrypy.expose
     def index(self, password=None):
         login_page = self.request_login("index", password)
-        return login_page if login_page else get_html("admin.html")
+        if login_page:
+            return login_page
+        page = get_html("admin.html")
+        return page
+
+    @cherrypy.expose
+    def setup(self, adminpwd=None, userpwd=None):
+        if adminpwd and userpwd:
+            log.info("Passwords set up")
+            AdminPages.admin_password = adminpwd
+            UserPages.leader_password = userpwd
+        if UserPages.leader_password and AdminPages.admin_password:
+            return "Server is set up."
+        else:
+            return get_html("setup.html").replace("{target-page}", "/admin/setup")
 
     @cherrypy.expose
     def teams(self, password=None):
