@@ -8,9 +8,9 @@ import cherrypy
 import model
 from model import properties
 from model import service
-from model.team import Team
 from model.game import Game
 from model.match import Match
+from model.team import Team
 from view import html_util as html
 
 HTML_DIR = join(properties.PROJECT_ROOT, "view", "html")
@@ -52,40 +52,38 @@ class UserPages:
         login_page = get_html("login.html")
         login_page = login_page.replace("{target-page}", "/{}".format(origin))
         if is_brute_force_attack():
-            return login_page.replace(
-                'id="attack" style="display:none;"',
-                'id="attack"'
-            )
+            login_page = login_page.replace('name="password"', 'name="password" disabled')
+            return html.show(login_page, "attack")
         if not UserPages.leader_password or not AdminPages.admin_password:
             return "Please ask an admin to initiate the server"
         if password:
             if password == self.leader_password:
                 cherrypy.session['logged'] = True
+            elif password == AdminPages.admin_password:
+                cherrypy.session['admin_logged'] = True
+                cherrypy.session['logged'] = True
             else:
                 add_login_attempt()
-                login_page = login_page.replace(
-                    'id="wrong-password" style="display:none;"',
-                    'id="wrong-password"'
-                )
+                login_page = html.show(login_page, "wrong-password")
         if cherrypy.session.get('logged'):
             return None
         else:
             return login_page
 
     @cherrypy.expose
-    def index(self):
+    def index(self, **unknown_args):
         if self.leader_password and AdminPages.admin_password:
             return get_html("home.html")
         else:
             return "Please ask an admin to initiate the server"
 
     @cherrypy.expose
-    def player(self, team_code=None):
+    def player(self, team_code=None, **unknown_args):
         page = get_html("player.html")
         if team_code:
             if not service.is_team(team_code):
                 page = page.replace("{teamcode}", team_code)
-                return page.replace('id="wrong-teamcode" style="display:none;"', 'id="wrong-teamcode"')
+                return html.show(page, "wrong-teamcode")
             cherrypy.session['player_teamcode'] = team_code
         else:
             team_code = cherrypy.session.get('player_teamcode', None)
@@ -96,14 +94,14 @@ class UserPages:
             page = page.replace("{section-name}", section)
             page = page.replace("{section-score}", str(round(service.get_section_score(section), 2)))
             page = page.replace("{team-score}", str(service.get_score(team_code)[0]))
-            page = page.replace('id="scores" style="display:none;"', 'id="scores"')
+            page = html.show(page, "scores")
         else:
             page = page.replace("{teamcode}", "")
 
         return page
 
     @cherrypy.expose
-    def leader(self, password=None, team1_code=None, team2_code=None, game_number=None, winner=None, confirmed=None):
+    def leader(self, password=None, team1_code=None, team2_code=None, game_number=None, winner=None, confirmed=None, **unknown_args):
         login_page = self.request_login("leader", password)
         if login_page:
             return login_page
@@ -179,12 +177,6 @@ class UserPages:
         page = page.replace('{warning}', warning)
         return page
 
-    @cherrypy.expose
-    def log(self):
-        log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r', encoding='utf-8').read()
-        log_content = log_content.replace('\n', "<br/>")
-        return log_content
-
 
 class AdminPages:
     admin_password = ""
@@ -193,10 +185,8 @@ class AdminPages:
         login_page = get_html("login.html")
         login_page = login_page.replace("{target-page}", "/admin/{}".format(origin))
         if is_brute_force_attack():
-            return login_page.replace(
-                'id="attack" style="display:none;"',
-                'id="attack"'
-            )
+            login_page = login_page.replace('name="password"', 'name="password" disabled')
+            return html.show(login_page, "attack")
         if not UserPages.leader_password or not AdminPages.admin_password:
             return "Please ask an admin to initiate the server"
         if password:
@@ -205,17 +195,14 @@ class AdminPages:
                 cherrypy.session['logged'] = True
             else:
                 add_login_attempt()
-                login_page = login_page.replace(
-                    'id="wrong-password" style="display:none;"',
-                    'id="wrong-password"'
-                )
+                login_page = html.show(login_page, "wrong-password")
         if cherrypy.session.get('admin_logged'):
             return None
         else:
             return login_page
 
     @cherrypy.expose
-    def index(self, password=None):
+    def index(self, password=None, **unknown_args):
         login_page = self.request_login("index", password)
         if login_page:
             return login_page
@@ -223,7 +210,16 @@ class AdminPages:
         return page
 
     @cherrypy.expose
-    def setup(self, adminpwd=None, userpwd=None):
+    def log(self, password=None, **unknown_args):
+        login_page = self.request_login("log", password)
+        if login_page:
+            return login_page
+        log_content = open(join(properties.PROJECT_ROOT, "activity.log"), 'r', encoding='utf-8').read()
+        log_content = log_content.replace('\n', "<br/>")
+        return log_content
+
+    @cherrypy.expose
+    def setup(self, adminpwd=None, userpwd=None, **unknown_args):
         if adminpwd and userpwd:
             log.info("Passwords set up")
             AdminPages.admin_password = adminpwd
@@ -234,7 +230,7 @@ class AdminPages:
             return get_html("setup.html").replace("{target-page}", "/admin/setup")
 
     @cherrypy.expose
-    def teams(self, password=None):
+    def teams(self, password=None, **unknown_args):
         login_page = self.request_login("teams", password)
         if login_page:
             return login_page
@@ -283,14 +279,14 @@ class AdminPages:
                                 else:
                                     color_tag = "table-danger"
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                    with html.a(code_list, "/admin/match?id={}".format(match.id)):
+                                    with html.a(code_list, "/admin/match?mid={}".format(match.id)):
                                         code_list.append(str(match.game_number))
 
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
 
     @cherrypy.expose
-    def games(self, password=None):
+    def games(self, password=None, **unknown_args):
         login_page = self.request_login("games", password)
         if login_page:
             return login_page
@@ -336,13 +332,13 @@ class AdminPages:
                             for match in game.matches:
                                 color_tag = "table-success" if match.recorded else ""
                                 with html.td(code_list, 'class="{}"'.format(color_tag)):
-                                    with html.a(code_list, "/admin/game?match={}".format(match.id)):
+                                    with html.a(code_list, "/admin/match?mid={}".format(match.id)):
                                         code_list.append("{} - {}".format(*match.players_code))
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
 
     @cherrypy.expose
-    def ranking(self, password=None, size=1000):
+    def ranking(self, password=None, size=1000, **unknown_args):
         login_page = self.request_login("ranking", password)
         if login_page:
             return login_page
@@ -356,13 +352,13 @@ class AdminPages:
         female_ranking = service.get_ranking("F")
         code_list = list()
         code_list.append(open(join(HTML_DIR, "header_admin.html"), 'r').read())
-        with html.div(code_list, 'class="container-fluid"'):
+        with html.div(code_list, 'class="container-fluid text-center"'):
             with html.div(code_list, 'class="row"'):
                 with html.div(code_list, 'class="col"'):
                     with html.h(4, code_list, 'class="ranking-title"'):
                         code_list.append("Sections lutins")
                     with html.table(code_list, 'class="table table-sm table-bordered"'):
-                        with html.thead(code_list, 'class="table-success text-center"'):
+                        with html.thead(code_list, 'class="table-success"'):
                             with html.tr(code_list):
                                 with html.th(code_list, scope="col"):
                                     code_list.append("#")
@@ -374,17 +370,17 @@ class AdminPages:
                             for i, score in enumerate(female_section_ranking):
                                 if i < size:
                                     with html.tr(code_list):
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.th(code_list, "row"):
                                             code_list.append(str(i+1))
-                                        with html.td(code_list):
+                                        with html.td(code_list, 'class="text-left"'):
                                             code_list.append(score[0])
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.td(code_list):
                                             code_list.append(str(score[1]))
                 with html.div(code_list, 'class="col"'):
                     with html.h(4, code_list, 'class="ranking-title"'):
                         code_list.append("Sections louveteaux")
                     with html.table(code_list, 'class="table table-sm table-bordered"'):
-                        with html.thead(code_list, 'class="table-success text-center"'):
+                        with html.thead(code_list, 'class="table-success"'):
                             with html.tr(code_list):
                                 with html.th(code_list, scope="col"):
                                     code_list.append("#")
@@ -396,17 +392,17 @@ class AdminPages:
                             for i, score in enumerate(male_section_ranking):
                                 if i < size:
                                     with html.tr(code_list):
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.th(code_list, "row"):
                                             code_list.append(str(i+1))
-                                        with html.td(code_list):
+                                        with html.td(code_list, 'class="text-left"'):
                                             code_list.append(score[0])
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.td(code_list):
                                             code_list.append(str(score[1]))
                 with html.div(code_list, 'class="col"'):
                     with html.h(4, code_list, 'class="ranking-title"'):
                         code_list.append("Lutins")
                     with html.table(code_list, 'class="table table-sm table-bordered"'):
-                        with html.thead(code_list, 'class="table-success text-center"'):
+                        with html.thead(code_list, 'class="table-success"'):
                             with html.tr(code_list):
                                 with html.th(code_list, scope="col"):
                                     code_list.append("#")
@@ -420,19 +416,19 @@ class AdminPages:
                             for i, score in enumerate(female_ranking):
                                 if i < size:
                                     with html.tr(code_list):
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.th(code_list, "row"):
                                             code_list.append(str(i+1))
-                                        with html.td(code_list, 'class="text-center"'):
-                                            code_list.append(score[0])
                                         with html.td(code_list):
+                                            code_list.append(score[0])
+                                        with html.td(code_list, 'class="text-left"'):
                                             code_list.append(score[1])
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.td(code_list):
                                             code_list.append(str(score[2]))
                 with html.div(code_list, 'class="col"'):
                     with html.h(4, code_list, 'class="ranking-title"'):
                         code_list.append("Louveteaux")
                     with html.table(code_list, 'class="table table-sm table-bordered"'):
-                        with html.thead(code_list, 'class="table-success text-center"'):
+                        with html.thead(code_list, 'class="table-success"'):
                             with html.tr(code_list):
                                 with html.th(code_list, scope="col"):
                                     code_list.append("#")
@@ -446,13 +442,21 @@ class AdminPages:
                             for i, score in enumerate(male_ranking):
                                 if i < size:
                                     with html.tr(code_list):
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.th(code_list, "row"):
                                             code_list.append(str(i+1))
-                                        with html.td(code_list, 'class="text-center"'):
-                                            code_list.append(score[0])
                                         with html.td(code_list):
+                                            code_list.append(score[0])
+                                        with html.td(code_list, 'class="text-left"'):
                                             code_list.append(score[1])
-                                        with html.td(code_list, 'class="text-center"'):
+                                        with html.td(code_list):
                                             code_list.append(str(score[2]))
         code_list.append(open(join(HTML_DIR, "footer.html"), 'r').read())
         return ''.join(code_list)
+
+    @cherrypy.expose
+    def match(self, password=None, mid=None, **unknown_args):
+        login_page = self.request_login("match", password)
+        if login_page:
+            return login_page
+        return get_html("match.html")
+    

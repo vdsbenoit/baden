@@ -33,7 +33,7 @@ body{
 .page{
     background-color: #D0E095;
 }
-input[type=text]{
+input[type=text], input[type=password]{
     color: #2B7054;
     background-color: #E2EBBE;
     border: 0;

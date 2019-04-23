@@ -19,11 +19,21 @@ It was first designed for a boyscout game involving about 1000 players.
 - game administrator haves access to a live score board
 
 ## Dev stack
+Back-end:
 - python
 - MongoDB + MongoEngine
 - CherryPy
+
+Front-end:
 - jQuery
+- Bootstrap
 - Nimiq QR scanner
+
+Server:
 - nginx
 - Docker
-- docx-mailmerge
+
+Roadmaps creation:
+- docxcompose
+- docxtpl
+- pyqrcode
