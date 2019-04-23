@@ -222,13 +222,6 @@ $(document).ready(function()
 	$('#scan-game-button').click(function() {startScan($('#scan-game-button'), 'game-number');});
 	$('#scan-team1-button').click(function() {startScan($('#scan-team1-button'), 'team1-code');});
 	$('#scan-team2-button').click(function() {startScan($('#scan-team2-button'), 'team2-code');});
-	$('#player-team-code').change(function() {$('#get-score-button').click()});
-	$('#team1-code').change(function() {getTeamName(1);});
-	$('#team2-code').change(function() {getTeamName(2);});
-	$('#game-number').change(getGameName);
-	$('#team1-code').change(autoComplete);
-	$('#team2-code').change(autoComplete);
-	$('#game-number').change(autoComplete);
 	$('#camera-preview').on('play', function(){previewDiv.slideDown(400);});
 	$('#retry-button').click(function(){window.location = window.location.href.split("?")[0];});
 	setTimeout(function(){
@@ -239,4 +232,20 @@ $(document).ready(function()
         $('.notification').slideUp(500);
         $('.warning').slideUp(500);
     }, (NOTIFICATION_TIME + 1) * 1000);
+	$('#game-number').change(getGameName);
+	$('#game-number').change(autoComplete);
+	$('#player-team-code').change(function() {
+		$('#player-team-code').val($('#player-team-code').val().toUpperCase());
+		$('#get-score-button').click();
+	});
+	$('#team1-code').change(function() {
+		$('#team1-code').val($('#team1-code').val().toUpperCase());
+		getTeamName(1);
+		autoComplete();
+	});
+	$('#team2-code').change(function() {
+		$('#team2-code').val($('#team2-code').val().toUpperCase());
+		getTeamName(2);
+		autoComplete();
+	});
 });
