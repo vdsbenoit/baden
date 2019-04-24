@@ -12,13 +12,21 @@
             </div>
         </div>
         <div class="row">
-            <form id="login-form" action="{target-page}" method="post">
+            <form id="login-form" action="/admin/setup" method="post">
                 <div class="col-4-6">
                     <input type="text"
                            id="user-pwd"
                            class="password-text"
                            name="userpwd"
                            placeholder="Mot de passe utilisateur"
+                           required
+                           autofocus
+                    />
+                    <input type="text"
+                           id="mod-pwd"
+                           class="password-text"
+                           name="modpwd"
+                           placeholder="Mot de passe mod&eacute;rateur"
                            required
                            autofocus
                     />
