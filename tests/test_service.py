@@ -6,6 +6,7 @@ from mongoengine import DoesNotExist
 from baden.model import service
 from exceptions import BadenException
 from model.game import Game
+from model.match import Match
 from model.team import Team
 from tests.conftest import SCHEDULES
 
@@ -196,6 +197,46 @@ def test_score(distributed_clean_db):
     assert girls_ranking[1][0] == "A1", "Girls second team should be A1"
     assert girls_ranking[2][0] == "A3", "Girls third team should be A3"
     assert girls_ranking[3][0] == "A4", "Girls fourth team should be A4"
+
+
+def test_reset_match(distributed_clean_db):
+    service.set_winner(1, "A1", "I3")
+    service.set_even(2, "A1", "A4")
+    service.set_winner(1, "A2", "A3")
+    service.set_winner(2, "A2", "I2")
+    service.set_even(2, "A3", "B1")
+    service.set_even(3, "A3", "I1")
+    assert Match.objects(game_number=1, players_code="A1").get().recorded
+    assert Match.objects(game_number=2, players_code="A1").get().recorded
+    assert Match.objects(game_number=1, players_code="A2").get().recorded
+    assert Match.objects(game_number=2, players_code="A2").get().recorded
+    assert Match.objects(game_number=2, players_code="A3").get().recorded
+    assert Match.objects(game_number=3, players_code="A3").get().recorded
+    service.reset_match(1, "A1", "I3")
+    service.reset_match(2, "A1", "A4")
+    service.reset_match(1, "A2", "A3")
+    service.reset_match(2, "A2", "I2")
+    service.reset_match(2, "A3", "B1")
+    service.reset_match(3, "A3", "I1")
+    assert not Match.objects(game_number=1, players_code="A1").get().recorded
+    assert not Match.objects(game_number=2, players_code="A1").get().recorded
+    assert not Match.objects(game_number=1, players_code="A2").get().recorded
+    assert not Match.objects(game_number=2, players_code="A2").get().recorded
+    assert not Match.objects(game_number=2, players_code="A3").get().recorded
+    assert not Match.objects(game_number=3, players_code="A3").get().recorded
+    assert service.get_score("A1")[0] == 0, "Team A1 should have 0 points"
+    assert service.get_score("A1")[1] == 0, "Team A1 should have 0 victory"
+    assert service.get_score("A1")[2] == 0, "Team A1 should have 0 even"
+    assert service.get_score("A2")[0] == 0, "Team A2 should have 0 points"
+    assert service.get_score("A2")[1] == 0, "Team A2 should have 0 victories"
+    assert service.get_score("A2")[2] == 0, "Team A2 should have 0 evens"
+    assert service.get_score("A3")[0] == 0, "Team A3 should have 0 points"
+    assert service.get_score("A3")[1] == 0, "Team A3 should have 0 victories"
+    assert service.get_score("A3")[2] == 0, "Team A3 should have 0 evens"
+    assert service.get_score("A3")[3] == 0, "Team A3 should have 0 defeat"
+    assert service.get_score("A4")[0] == 0, "Team A4 should have 0 points"
+    assert service.get_score("A4")[1] == 0, "Team A4 should have 0 victories"
+    assert service.get_score("A4")[2] == 0, "Team A4 should have 0 even"
 
 
 def test_get_all_schedules(distributed_clean_db):

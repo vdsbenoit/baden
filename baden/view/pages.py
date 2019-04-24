@@ -4,6 +4,7 @@ import logging
 from os.path import join
 
 import cherrypy
+from mongoengine import DoesNotExist
 
 import model
 from model import properties
@@ -39,7 +40,7 @@ def add_login_attempt():
 
 def is_brute_force_attack():
     if cherrypy.session.get('failed_login_count') and cherrypy.session.get('failed_login_count') > 15:
-        log.warning("IP {} tried to brute force the password".format(str(cherrypy.request.remote.ip)))
+        log.error("IP {} tried to brute force the password".format(str(cherrypy.request.remote.ip)))
         return True
     else:
         return False
@@ -130,6 +131,7 @@ class UserPages:
                     warning = "Le score n'a pas pu &ecirc;tre enregistr&eacute.\n" \
                               "Merci de le signaler à l'administrateur.;"
             else:
+                # confirm page
                 page = get_html("confirm_score.html")
                 page = page.replace('{game_number}', str(game_number))
                 page = page.replace('{team1_code}', team1_code)
@@ -146,6 +148,7 @@ class UserPages:
                 try:
                     match = Match.objects(game_number=game_number, players_code=team1_code).get()
                     page = page.replace("{time}", str(match.time))
+                    page = page.replace("{schedule}", match.schedule)
                     if match.recorded:
                         page = html.show(page, "previous-score")
                         if match.even:
@@ -375,7 +378,7 @@ class AdminPages:
                                         with html.td(code_list, 'class="text-left"'):
                                             code_list.append(score[0])
                                         with html.td(code_list):
-                                            code_list.append(str(score[1]))
+                                            code_list.append(str(round(score[1], 2)))
                 with html.div(code_list, 'class="col"'):
                     with html.h(4, code_list, 'class="ranking-title"'):
                         code_list.append("Sections louveteaux")
@@ -397,7 +400,7 @@ class AdminPages:
                                         with html.td(code_list, 'class="text-left"'):
                                             code_list.append(score[0])
                                         with html.td(code_list):
-                                            code_list.append(str(score[1]))
+                                            code_list.append(str(round(score[1], 2)))
                 with html.div(code_list, 'class="col"'):
                     with html.h(4, code_list, 'class="ranking-title"'):
                         code_list.append("Lutins")
@@ -454,9 +457,62 @@ class AdminPages:
         return ''.join(code_list)
 
     @cherrypy.expose
-    def match(self, password=None, mid=None, **unknown_args):
+    def match(self, password=None, mid=None, winner=None, **unknown_args):
         login_page = self.request_login("match", password)
         if login_page:
             return login_page
-        return get_html("match.html")
-    
+        page = get_html("match.html")
+        notification = ""
+        error = ""
+        try:
+            match = Match.objects(id=mid).get()
+            game = Game.objects(number=match.game_number).get()
+        except DoesNotExist:
+            page = html.show(page, "error-not-found")
+            page = html.hide(page, "match-form")
+            log.error("{} tried to load a not-existing match (id={})".format(str(cherrypy.request.remote.ip), mid))
+        except Exception:
+            page = html.show(page, "error-not-found")
+            page = html.hide(page, "match-form")
+            log.exception("{} tried to load a not-existing match (id={})".format(str(cherrypy.request.remote.ip), mid))
+        else:
+            team1_code = match.players_code[0]
+            team2_code = match.players_code[1]
+            if winner:
+                notification = "Le changement de score a bien &eacute;t&eacute; enregistr&eacute;"
+                if winner == "even":
+                    service.set_even(game.number, team1_code, team2_code)
+                elif winner == team1_code:
+                    service.set_winner(game.number, team1_code, team2_code)
+                elif winner == team2_code:
+                    service.set_winner(game.number, team2_code, team1_code)
+                elif winner == "no-scores":
+                    service.reset_match(game.number, team1_code, team2_code)
+                else:
+                    error = "Le changement de score n'a pas pu &ecirc;tre enregistr&eacute;"
+                    notification = ""
+                    log.error("{} tried to set an unknown type of winner ({}) at match id {}".format(str(cherrypy.request.remote.ip), winner, mid))
+                match = Match.objects(id=mid).get()
+            team1_section = service.get_section(team1_code)
+            team2_section = service.get_section(team2_code)
+            page = page.replace("{game-number}", str(game.number))
+            page = page.replace("{game-name}", game.name)
+            page = page.replace("{time}", str(match.time))
+            page = page.replace("{schedule}", match.schedule)
+            page = page.replace("{team1-code}", team1_code)
+            page = page.replace("{team2-code}", team2_code)
+            page = page.replace("{team1}", "{} - {}".format(team1_code, team1_section))
+            page = page.replace("{team2}", "{} - {}".format(team2_code, team2_section))
+            page = page.replace("{mid}", str(match.id))
+            if not match.recorded:
+                page = page.replace('value="no-scores"', 'value="no-scores" checked')
+            elif match.even:
+                page = page.replace('value="even"', 'value="even" checked')
+            elif match.winner == team1_code:
+                page = page.replace('value="{}"'.format(team1_code), 'value="{}" checked'.format(team1_code))
+            elif match.winner == team2_code:
+                page = page.replace('value="{}"'.format(team2_code), 'value="{}" checked'.format(team2_code))
+        page = page.replace('{notification}', notification)
+        page = page.replace('{error}', error)
+        return page
+

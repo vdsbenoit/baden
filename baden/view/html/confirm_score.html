@@ -24,7 +24,8 @@
                            class="leader-code-field"
                            value="{time}"
                            required
-                    />
+                           readonly
+                    /><span id="schedule" class="leader-text-field">{schedule}</span>
                 </div>
             </div>
             <div class="row confirm-form-row">
@@ -38,6 +39,7 @@
                            name="game_number"
                            value="{game_number}"
                            required
+                           readonly
                     /><span id="game-name" class="leader-text-field"></span>
                 </div>
             </div>
@@ -53,6 +55,7 @@
                            name="team1_code"
                            value="{team1_code}"
                            required
+                           readonly
                     /><span id="team1-name" class="leader-text-field"></span>
                 </div>
             </div>
@@ -67,6 +70,7 @@
                            name="team2_code"
                            value="{team2_code}"
                            required
+                           readonly
                     /><span id="team2-name" class="leader-text-field"></span>
                 </div>
             </div>
@@ -87,6 +91,7 @@
                                class="leader-code-field"
                                value="{previous_team1_code}"
                                required
+                               readonly
                         /><span id="team1-previous-name" class="leader-text-field"></span>
                     </div>
                 </div>
@@ -100,13 +105,14 @@
                                class="leader-code-field"
                                value="{previous_team2_code}"
                                required
+                               readonly
                         /><span id="team2-previous-name" class="leader-text-field"></span>
                     </div>
                 </div>
             </form>
         </div>
         <div class="row">
-            <button type="submit" form="confirm-form" id="confirm-score" class="large-button">Confirmer</button>
+            <button type="submit" form="confirm-form" id="confirm-score" class="large-button confirm-button">Confirmer</button>
             <button type="button" id="retry-button" style="display: none;" class="large-button">R&eacute;encoder</button>
         </div>
     </div>

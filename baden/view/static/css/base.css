@@ -65,6 +65,9 @@ button:active{
 .activated-button{
     background-color: #A6C599;
 }
+textarea:focus, input:focus, button:focus{
+    outline: none;
+}
 /* For IE */
 a{
     text-decoration: none;
@@ -138,6 +141,9 @@ img{
 }
 .error-message{
     color: red;
+}
+.confirm-button{
+    background-color: #c96246;
 }
 /**********************/
 #home-page {
@@ -259,7 +265,38 @@ img{
 #admin-menu a{
     color: #2B7054;
 }
-
+/**********************/
+#match-page{
+}
+#match-top-nav-buttons{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.match-top-nav-button{
+    width: 95%;
+    font-size: 1em;
+    padding: 5px;
+    border-radius: 0;
+}
+#match-form{
+    margin-top: 20px;
+}
+.match-form-item-label{
+    text-align: right;
+    font-weight: bold;
+    padding: 10px;
+}
+.match-form-item{
+    text-align: left;
+    padding: 5px;
+}
+.match-form-item input[type="radio"]{
+    margin-top: 10px;
+}
+#edit-score-button{
+    margin-top: 20px;
+    width: 70%;
+}
 /**********************/
 footer {
     position: fixed;

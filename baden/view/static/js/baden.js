@@ -60,7 +60,7 @@ function afterScan(scanValue, targetFieldId){
 			}
 		})
 		.fail(function () {
-			alert("Error: could retrieve QR code data");
+			alert("Error: could not retrieve QR code data");
 		});
 }
 function getGameName()
@@ -91,7 +91,7 @@ function getGameName()
 				$('#game-name').text(data);
 			}
 		}).fail(function () {
-			alert("Error: could retrieve game name");
+			alert("Error: could not retrieve game name");
 		});
 	}
 }
@@ -125,7 +125,7 @@ function getTeamName(teamIndex)
 				$('#option-team' + teamIndex).text(teamCode + ' - ' + data);
 			}
 		}).fail(function () {
-			alert("Error: could retrieve team name");
+			alert("Error: could not retrieve team name");
 		});
 	}
 }
@@ -155,7 +155,7 @@ function autoComplete(){
 					$('#team2-code').val(data).change();
 				}
 			}).fail(function () {
-			alert("Error: could not autocomplete 1");
+			alert("Error: could not not autocomplete 1");
 		});
 		}
 		if (team1Code == "" && team2Code != "")

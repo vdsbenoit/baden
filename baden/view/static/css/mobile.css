@@ -31,3 +31,22 @@ body{
 #confirm-password-button {
 	width: 100%;
 }
+
+#match-top-nav-buttons{
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.match-top-nav-button{
+    margin-top: 5px;
+}
+.match-form-item-label{
+    margin-left: 10px;
+    text-align: left;
+    padding-bottom: 10px;
+}
+.match-form-item{
+    margin-left: 20px;
+}
+#edit-score-button{
+    width: 95%;
+}

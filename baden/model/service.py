@@ -87,6 +87,8 @@ def set_winner(game_number, winner_team_code, loser_team_code):
     :param loser_team_code: the loser team code
     :return: True if the match was updated, False if the match was not found
     """
+    if winner_team_code == loser_team_code:
+        raise BadenException("Winner and loser team code are identical")
     match = Match.objects(game_number=game_number, players_code__all=[winner_team_code, loser_team_code]).get()
     match.winner = winner_team_code
     match.loser = loser_team_code
@@ -111,6 +113,23 @@ def set_even(game_number, team1_code, team2_code):
     match.recorded = True
     match.save()
     log.info("Team {} and team {} are equally placed at the game {}".format(team1_code, team2_code, game_number))
+
+
+def reset_match(game_number, team1_code, team2_code):
+    """
+    Reset the score of a match
+    Assert the match exists.
+    :param game_number: a game number
+    :param team1_code: a team code
+    :param team2_code: another team code
+    """
+    match = Match.objects(game_number=game_number, players_code__all=[team1_code, team2_code]).get()
+    match.winner = ""
+    match.loser = ""
+    match.even = False
+    match.recorded = False
+    match.save()
+    log.info("Match id {} score has been reset".format(match.id))
 
 
 def get_score(team_code):
