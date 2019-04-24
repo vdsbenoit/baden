@@ -257,15 +257,6 @@ img{
     margin-top: 50px;
 }
 /**********************/
-#admin-menu{
-    margin-top: 40px;
-    padding-left: 40px;
-    text-align: left;
-}
-#admin-menu a{
-    color: #2B7054;
-}
-/**********************/
 #match-page{
 }
 #match-top-nav-buttons{
@@ -296,6 +287,16 @@ img{
 #edit-score-button{
     margin-top: 20px;
     width: 70%;
+}
+/**********************/
+#admin-menu{
+    margin-top: 40px;
+}
+.admin-index-buttons{
+    width: 95%;
+    font-size: 1.3em;
+    margin-top: 30px;
+
 }
 /**********************/
 footer {

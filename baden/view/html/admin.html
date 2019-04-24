@@ -12,14 +12,35 @@
             </div>
         </div>
         <div id="admin-menu">
-            <h2>Menu</h2>
-            <ul>
-                <li><a href="./teams">Gestion des &eacute;quipes</a></li>
-                <li><a href="./games">Gestion des jeux</a></li>
-                <li><a href="./ranking">Classements</a></li>
-                <li><a href=".">Chercher un jeu</a></li>
-                <li><a href=".">Param&egrave;tres</a></li>
-            </ul>
+            <div class="row">
+                <div class="col-2-6">
+                    <form>
+                        <button type="submit" formaction="./teams" id="goto-teams" class="admin-index-buttons">Gestion &eacute;quipes</button>
+                    </form>
+                </div>
+                <div class="col-2-6">
+                    <form>
+                        <button type="submit" formaction="./games" id="goto-games" class="admin-index-buttons">Gestion jeux</button>
+                    </form>
+                </div>
+                <div class="col-2-6">
+                    <form>
+                        <button type="submit" formaction="./ranking" id="goto-ranking" class="admin-index-buttons">Classements</button>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3-6">
+                    <form>
+                        <button type="submit" formaction="." id="goto-search" class="admin-index-buttons">Chercher un match</button>
+                    </form>
+                </div>
+                <div class="col-3-6">
+                    <form>
+                        <button type="submit" formaction="." id="goto-settings" class="admin-index-buttons">Param&egrave;tres</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-1-6"></div>
