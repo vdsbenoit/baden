@@ -11,7 +11,6 @@ var currentScanSource = null;
 
 function startScan(source, targetFieldId)
 {
-	console.log(QrScanner.hasCamera());  // fixme: remove this statement
 	if (scanner != null)
 	{
 		scanner._onDecode = result => afterScan(result, targetFieldId);
@@ -19,16 +18,22 @@ function startScan(source, targetFieldId)
 		source.addClass('activated-button');
 		currentScanSource = source;
 	}
-	else if (QrScanner.hasCamera() != false)
+	else 
 	{
-		scanner = new QrScanner(preview, result => afterScan(result, targetFieldId));
-		source.addClass('activated-button');
-		currentScanSource = source;
-		scanner.start();
-	}
-	else
-	{
-		$('#no-camera-error').slideDown();
+		QrScanner.hasCamera().then(function(hasCamera){
+			console.log(hasCamera);  // fixme: remove this statement
+			if(hasCamera)
+			{
+				scanner = new QrScanner(preview, result => afterScan(result, targetFieldId));
+				source.addClass('activated-button');
+				currentScanSource = source;
+				scanner.start();
+			}
+			else
+			{
+				$('#no-camera-error').slideDown();
+			}
+		});
 	}
 }
 function stopScan()
