@@ -74,7 +74,7 @@ class Api:
                     str(cherrypy.request.remote.ip), team1_code, team2_code))
             return ""
         try:
-            return Match.objects(players_code__all=[team1_code, team2_code]).get().game_number
+            return str(Match.objects(players_code__all=[team1_code, team2_code]).get().game_number)
         except DoesNotExist:
             msg = "Les équipes {} et {} ne sont pas censées jouer ensemble".format(team1_code, team2_code)
             log.info(msg)

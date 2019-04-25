@@ -494,3 +494,46 @@ class AdminPages:
         page = page.replace('{error}', error)
         return page
 
+    @cherrypy.expose
+    def search(self, password=None, **kwargs):
+        login_page = request_login("match", password, 2)
+        if login_page:
+            return login_page
+        page = get_html("search.html")
+        warning = ""
+        len_kwargs = len([k for k, v in kwargs.items() if v != ""])
+        if kwargs:
+            if len_kwargs > 1:
+                try:
+                    time = None
+                    game_number = None
+                    if kwargs["time"]:
+                        time = int(kwargs["time"])
+                    if kwargs["game_number"]:
+                        game_number = int(kwargs["game_number"])
+                    if kwargs["team1_code"] and kwargs["team2_code"]:
+                        match = Match.objects(players_code__all=[kwargs["team1_code"], kwargs["team2_code"]]).get()
+                    else:
+                        team_code = kwargs.get("team1_code") or kwargs.get("team2_code") or None
+                        if team_code:
+                            if time:
+                                match = Match.objects(time=time, players_code=team_code).get()
+                            else:
+                                match = Match.objects(game_number=game_number, players_code=team_code).get()
+                        else:
+                            match = Match.objects(time=time, game_number=game_number).get()
+                except ValueError:
+                    warning = "Le num&eacute;ro doit &ecirc;tre un nombre"
+                    log.error("{} tried to search a match with an non-integer value)".format(str(cherrypy.request.remote.ip)))
+                except (DoesNotExist, Exception):
+                    warning = "Aucun match ne correspond à la recherche"
+                    log.error("{} tried to search a match but it was not found (time={}, game_number={}, team1_code={}, team2_code={})".format(
+                        str(cherrypy.request.remote.ip),
+                        kwargs.get("time", ""), kwargs.get("game_number", ""), kwargs.get("team1_code", ""), kwargs.get("team2_code", "")
+                    ))
+                else:
+                    return self.match(mid=match.id)
+            else:
+                warning = "Minimum 2 champs sont n&eacute;cessaires pour trouver un match"
+        return page.replace("{warning}", warning)
+

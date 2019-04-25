@@ -1,0 +1,63 @@
+<div class="row page" id="admin-index">
+    <div class="col-1-6"></div>
+    <div class="col-4-6">
+        <div class="row">
+            <div class="col-1-4">
+                <a href="/admin">
+                    <img id="little-logo" alt="BadenBattle-logo" src="static/images/logo.png"/>
+                </a>
+            </div>
+            <div class="col-3-4">
+                <div id="title">Recherche</div>
+            </div>
+        </div>
+        <div id="warning" class="error-message notification">{warning}</div>
+        <form id="search-form" method="post">
+            <div class="row leader-form-row">
+                <div class="col-1-4 match-form-item-label">Temps</div>
+                <div class="col-3-4 match-form-item">
+                    <input type="text"
+                           id="time-slot"
+                           class="leader-code-field"
+                           name="time"
+                    />
+                </div>
+            </div>
+            <div class="row leader-form-row">
+                <div class="col-1-4 match-form-item-label">Jeu</div>
+                <div class="col-3-4 match-form-item">
+                    <input type="text"
+                           id="game-number"
+                           class="leader-code-field"
+                           name="game_number"
+                    /><span id="game-name" class="leader-text-field"></span>
+                </div>
+            </div>
+            <div class="row leader-form-row">
+                <div class="col-1-4 match-form-item-label">Team 1</div>
+                <div class="col-3-4 match-form-item">
+                    <input type="text"
+                           id="team1-code"
+                           class="leader-code-field"
+                           name="team1_code"
+                    /><span id="team1-name" class="leader-text-field"></span>
+                </div>
+            </div>
+            <div class="row leader-form-row">
+                <div class="col-1-4 match-form-item-label">Team 2</div>
+                <div class="col-3-4 match-form-item">
+                    <input type="text"
+                           id="team2-code"
+                           class="leader-code-field"
+                           name="team2_code"
+                    /><span id="team2-name" class="leader-text-field"></span>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <button type="submit" form="search-form" id="send-score" class="large-button">Chercher match</button>
+        </div>
+        <div id="tip">* Compl&eacute;ter au moins 2 champs</div>
+    </div>
+    <div class="col-1-6"></div>
+</div>

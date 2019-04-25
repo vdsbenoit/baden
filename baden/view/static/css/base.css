@@ -299,6 +299,17 @@ img{
 
 }
 /**********************/
+#search-form{
+    margin-top: 20px;
+    text-align: left;
+}
+#tip{
+    text-align: right;
+    padding-top: 5px;
+    padding-right: 5px;
+    width: 95%;
+}
+/**********************/
 footer {
     position: fixed;
     z-index: -1;

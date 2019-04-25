@@ -43,7 +43,7 @@ function stopScan()
 function afterScan(scanValue, targetFieldId){
 	stopScan();
 	$.ajax({
-			url: 'api/resolve_hash',
+			url: '/api/resolve_hash',
 			type: 'GET',
 			dataType: 'text',
 			data: {
@@ -73,7 +73,7 @@ function getGameName()
 	else
 	{
 		$.ajax({
-			url: 'api/get_game_name',
+			url: '/api/get_game_name',
 			type: 'GET',
 			dataType: 'text',
 			data: {
@@ -105,7 +105,7 @@ function getTeamName(teamIndex)
 	else
 	{
 		$.ajax({
-			url: 'api/get_team_section',
+			url: '/api/get_team_section',
 			type: 'GET',
 			dataType: 'text',
 			data: {
@@ -138,7 +138,7 @@ function autoComplete(){
 		if (team1Code != "" && team2Code == "")
 		{
 			$.ajax({
-				url: 'api/get_opponent_code',
+				url: '/api/get_opponent_code',
 				type: 'GET',
 				dataType: 'text',
 				data: {
@@ -161,7 +161,7 @@ function autoComplete(){
 		if (team1Code == "" && team2Code != "")
 		{
 			$.ajax({
-				url: 'api/get_opponent_code',
+				url: '/api/get_opponent_code',
 				type: 'GET',
 				dataType: 'text',
 				data: {
@@ -187,7 +187,7 @@ function autoComplete(){
 		if (team1Code != "" && team2Code != "")
 		{
 			$.ajax({
-				url: 'api/get_game_number',
+				url: '/api/get_game_number',
 				type: 'GET',
 				dataType: 'text',
 				data: {
