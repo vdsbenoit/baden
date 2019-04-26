@@ -4,7 +4,6 @@ QrScanner.WORKER_PATH = '/static/js/qr-scanner-worker.min.js';
 const NOTIFICATION_TIME = 8;
 const previewDiv = $('#camera-preview-div');
 const preview 	 = document.getElementById('camera-preview');
-const noCameraErrorDiv 	 = $('#no-camera-error');
 const closePreviewButton = $('#close-camera-preview');
 
 var scanner = null;
@@ -19,16 +18,22 @@ function startScan(source, targetFieldId)
 		source.addClass('activated-button');
 		currentScanSource = source;
 	}
-	else if (QrScanner.hasCamera())
+	else 
 	{
-		scanner = new QrScanner(preview, result => afterScan(result, targetFieldId));
-		source.addClass('activated-button');
-		currentScanSource = source;
-		scanner.start();
-	}
-	else
-	{
-		noCameraErrorDiv.show();
+		QrScanner.hasCamera().then(function(hasCamera){
+			console.log(hasCamera);  // fixme: remove this statement
+			if(hasCamera)
+			{
+				scanner = new QrScanner(preview, result => afterScan(result, targetFieldId));
+				source.addClass('activated-button');
+				currentScanSource = source;
+				scanner.start();
+			}
+			else
+			{
+				$('#no-camera-error').slideDown();
+			}
+		});
 	}
 }
 function stopScan()

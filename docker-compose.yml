@@ -13,11 +13,9 @@ services:
         max-buffer-size: "10m"
         max-size: "200m"
     volumes:
-      - /docker/data/baden/db:/data/db
+      - /docker/data/baden/data/db:/data/db
     expose:
       - 27017
-    networks:
-      - largo
 
   baden_web:
     image: vdsbenoit/baden:latest
