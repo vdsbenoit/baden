@@ -18,6 +18,7 @@ HTML_DIR = join(properties.PROJECT_ROOT, "view", "html")
 
 log = logging.getLogger('default')
 login_passwords = None
+force_qr_scan = True
 
 
 def get_html(page_name):
@@ -48,6 +49,7 @@ def is_brute_force_attack():
 
 
 def request_login(origin, password, level):
+    global login_passwords
     login_page = get_html("login.html")
     login_page = login_page.replace("{target-page}", "{}".format(origin))
     if is_brute_force_attack():
@@ -55,17 +57,16 @@ def request_login(origin, password, level):
         return html.show(login_page, "attack")
     if not login_passwords:
         return "Please ask an admin to initiate the server first"
-    if password:
-        for l, p in enumerate(login_passwords):
-            if p == password and p != "":
-                cherrypy.session['user_rights'] = l
+    if password and password != "":
+        if password in login_passwords:
+            cherrypy.session['password'] = password
         else:
             add_login_attempt()
             login_page = html.show(login_page, "wrong-password")
-    if cherrypy.session.get('user_rights', -1) >= level:
-        return None
-    else:
-        return login_page
+    for lvl, p in enumerate(login_passwords):
+        if cherrypy.session.get('password', '') == p and p != '' and lvl >= level:
+            return None
+    return login_page
 
 
 class UserPages:
@@ -79,6 +80,8 @@ class UserPages:
     @cherrypy.expose
     def player(self, team_code=None, **unknown_args):
         page = get_html("player.html")
+        if not force_qr_scan:
+            page = page.replace('input readonly', 'input')
         if team_code:
             if not service.is_team(team_code):
                 page = page.replace("{teamcode}", team_code)
@@ -108,6 +111,8 @@ class UserPages:
         notification = ""
         warning = ""
         page = get_html("leader.html")
+        if not force_qr_scan:
+            page = page.replace('input readonly', 'input')
         if team1_code and team2_code and game_number:
             wrong_team1 = False if service.is_team(team1_code) else True
             wrong_team2 = False if service.is_team(team2_code) else True
@@ -198,15 +203,38 @@ class AdminPages:
         return log_content
 
     @cherrypy.expose
-    def setup(self, userpwd=None, modpwd=None, adminpwd=None, **unknown_args):
+    def setup(self, password=None, userpwd=None, modpwd=None, adminpwd=None, forceQr=None, **unknown_args):
         global login_passwords
+        global force_qr_scan
+        page = get_html("setup.html")
+        notification = ""
         if login_passwords:
-            return "Server is set up."
-        elif userpwd and modpwd and adminpwd:
+            login_page = request_login("/admin/setup", password, 4)
+            if login_page:
+                return login_page
+            else:
+                page = page.replace('required', '')
+                page = page.replace('id="admin-pwd"', 'id="admin-pwd" style="display: none;"')
+        if userpwd and modpwd and adminpwd:
             login_passwords = [userpwd, "", modpwd, "", adminpwd]
             return "Server is set up."
+        if userpwd:
+            login_passwords[0] = userpwd
+            notification = "Nouvelle configuration enregistr&eacute;e"
+        if modpwd:
+            login_passwords[2] = modpwd
+            notification = "Nouvelle configuration enregistr&eacute;e"
+        if forceQr == "oui" and not force_qr_scan:
+            force_qr_scan = True
+            notification = "Nouvelle configuration enregistr&eacute;e"
+        if forceQr == "non" and force_qr_scan:
+            force_qr_scan = False
+            notification = "Nouvelle configuration enregistr&eacute;e"
+        if force_qr_scan:
+            page = page.replace('name="forceQr" value="oui"', 'name="forceQr" value="yes" checked')
         else:
-            return get_html("setup.html")
+            page = page.replace('name="forceQr" value="non"', 'name="forceQr" value="yes" checked')
+        return page.replace("{notification}", notification)
 
     @cherrypy.expose
     def teams(self, password=None, **unknown_args):
