@@ -19,6 +19,7 @@ class Team(Document):
     sex = StringField(max_length=1, required=True)  # M F
     hash = StringField(required=True, unique=True, max_length=40)
     matches = ListField(ReferenceField(Match))
+    ignore_score = BooleanField(default=True)  # do not count this team in the section mean score
 
 
 def set_matches():

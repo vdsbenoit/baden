@@ -154,7 +154,8 @@ def get_section_score(section):
     scores = list()
     teams = Team.objects(section=section)
     for team in teams:
-        scores.append(get_score(team.code)[0])
+        if not team.ignore_score:
+            scores.append(get_score(team.code)[0])
     return sum(scores) / len(scores)
 
 
