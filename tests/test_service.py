@@ -34,18 +34,18 @@ def test_is_game(distributed_clean_db):
     assert not service.is_game(64)
 
 
-def test_get_game_name(distributed_clean_db):
-    assert service.get_game_name(1) == "Jeu 1", "Wrong game name"
-    assert service.get_game_name(21) == "Jeu 21", "Wrong game name"
-    assert service.get_game_name(25) == "Jeu 25", "Wrong game name"
-    assert service.get_game_name(50) == "Jeu 50", "Wrong game name"
-    assert service.get_game_name(63) == "Jeu 63", "Wrong game name"
-
-
-def test_get_section(distributed_clean_db):
-    assert service.get_section("A1") == "Lutin St Symphorien Villers-Saint-Ghislain", "Wrong section name"
-    assert service.get_section("J3") == "louveteaux Saintes", "Wrong section name"
-    assert service.get_section("X2") == "Louveteaux Lessines", "Wrong section name"
+# def test_get_game_name(distributed_clean_db):
+#     assert service.get_game_name(1) == "Jeu 1", "Wrong game name"
+#     assert service.get_game_name(21) == "Jeu 21", "Wrong game name"
+#     assert service.get_game_name(25) == "Jeu 25", "Wrong game name"
+#     assert service.get_game_name(50) == "Jeu 50", "Wrong game name"
+#     assert service.get_game_name(63) == "Jeu 63", "Wrong game name"
+# 
+# 
+# def test_get_section(distributed_clean_db):
+#     assert service.get_section("A1") == "Lutin St Symphorien Villers-Saint-Ghislain", "Wrong section name"
+#     assert service.get_section("J3") == "louveteaux Saintes", "Wrong section name"
+#     assert service.get_section("X2") == "Louveteaux Lessines", "Wrong section name"
 
 
 def test_resolve_hash(distributed_clean_db):

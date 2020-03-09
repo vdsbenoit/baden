@@ -4,10 +4,10 @@ from model.game import Game
 from tests.conftest import SCHEDULES
 
 
-def test_schedule_value(distributed_clean_db):
-    game1 = Game.objects(number=1).get()
-    for m in game1.matches:
-        assert m.schedule == SCHEDULES[m.time-1]
+# def test_schedule_value(distributed_clean_db):
+#     game1 = Game.objects(number=1).get()
+#     for m in game1.matches:
+#         assert m.schedule == SCHEDULES[m.time-1]
 
 
 def test_get_match_quantity(distributed_clean_db):

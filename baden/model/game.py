@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 import logging
 
 from mongoengine import *
@@ -53,6 +54,52 @@ def load_file(file_name):
                 match.save()
                 game.matches.append(match)
             game.save()
+
+
+def create_schedule(nb_games, nb_circuits):
+    """
+    Generate a new schedule and save it in DB
+    :param nb_games: amount of games per circuit (= amount of matches / team)
+    :param nb_circuits: amount of circuits
+    """
+    if nb_games % 2 == 0:
+        raise Exception("The game amount must be a odd value")
+    if nb_circuits < 1:
+        raise Exception("The circuit amount must be greater than 0")
+
+    for circuit_idx in range(nb_circuits):
+        teams = [i for i in range(1 + (nb_games * 2 * circuit_idx), 1 + nb_games * 2 * (circuit_idx + 1))]
+        first_game = circuit_idx * nb_games + 1
+        last_game = (circuit_idx + 1) * nb_games
+        game_distribution = [i for i in itertools.chain(range(first_game, 1 + last_game), range(last_game, first_game - 1, -1))]
+
+        # Game setup
+        games = dict()
+        for i in range(1, nb_games + 1):
+            game = Game()
+            game.number = (circuit_idx * nb_games) + i
+            game.hash = hashlib.sha1(f"Baden {game.number} Battle".encode()).hexdigest()
+            game.circuit = chr(circuit_idx + 98)
+            games[game.number] = game
+
+        # Match setup
+        for i in range(nb_games):
+            matches = dict()
+            time = i + 1
+            for j, game_number in enumerate(game_distribution):
+                team = teams[(j + i * 2) % (2 * nb_games)]
+                if game_number in matches:
+                    match = matches[game_number]
+                else:
+                    match = Match()
+                    games[game_number].matches.append(match)
+                match.time = time
+                match.game_number = game_number
+                match.players_number.append(team)
+                matches[game_number] = match
+                match.save()
+                games[game_number].save()
+                # print("Time {} Game {} Team {}".format(time, game_number, team))
 
 
 def validate_game_collection():

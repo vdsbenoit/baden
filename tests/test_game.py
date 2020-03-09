@@ -11,8 +11,18 @@ TEST_GAME_FILE_TWICE_GAME = os.path.join(TEST_DATA_DIR, "distribution_twice_game
 TEST_GAME_FILE_TWICE_TIME = os.path.join(TEST_DATA_DIR, "distribution_twice_time.csv")
 
 
-def test_load_good_team_file(empty_db):
-    game.load_file(GOOD_TEST_GAME_FILE)
+# def test_load_good_team_file(empty_db):
+#     game.load_file(GOOD_TEST_GAME_FILE)
+#     game.validate_game_collection()
+
+
+def test_create_schedule_one_circuit(empty_db):
+    game.create_schedule(21, 1)
+    game.validate_game_collection()
+
+
+def test_create_schedule_three_circuit(empty_db):
+    game.create_schedule(21, 3)
     game.validate_game_collection()
 
 

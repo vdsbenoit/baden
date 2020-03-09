@@ -56,9 +56,10 @@ def distributed_clean_db(empty_db):
     Distribute team numbers in an ascending way.
     """
     team.load_file(GOOD_TEST_TEAM_FILE, False)
-    game.load_file(GOOD_TEST_GAME_FILE)
-    game.load_file(join(TEST_DATA_DIR, "distribution2.csv"))
-    game.load_file(join(TEST_DATA_DIR, "distribution3.csv"))
+    game.create_schedule(21, 3)
+    # game.load_file(GOOD_TEST_GAME_FILE)
+    # game.load_file(join(TEST_DATA_DIR, "distribution2.csv"))
+    # game.load_file(join(TEST_DATA_DIR, "distribution3.csv"))
     service.set_player_codes()
     team.set_matches()
     return empty_db
